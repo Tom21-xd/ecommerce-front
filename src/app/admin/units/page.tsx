@@ -1,0 +1,88 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { CatalogService } from "@/service/catalog/catalog.service";
+import type { Unidad } from "@/lib/types";
+import { toast } from "sonner";
+import SectionHeader from "@/components/admin/sectionHeader";
+import KpiCard from "@/components/admin/kpiCard";
+import { RefreshCcw } from "lucide-react";
+
+export default function AdminUnitsPage() {
+  const [rows, setRows] = useState<Unidad[]>([]);
+  const [nombre, setNombre] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  async function load() {
+    setLoading(true);
+    try {
+      setRows((await CatalogService.listUnidad()) ?? []);
+    } catch (e: any) {
+      toast.error(e.message || "No se pudieron cargar unidades");
+      setRows([]);
+    } finally { setLoading(false); }
+  }
+
+  useEffect(()=>{ load(); },[]);
+
+  async function save(e: React.FormEvent) {
+    e.preventDefault();
+    if (!nombre.trim()) return toast.error("Nombre requerido");
+    setSaving(true);
+    try {
+      await CatalogService.createUnidad({ nombre });
+      setNombre("");
+      toast.success("Unidad creada");
+      await load();
+    } catch (e: any) {
+      toast.error(e.message || "Error creando unidad");
+    } finally { setSaving(false); }
+  }
+
+  return (
+    <section className="space-y-6">
+      <SectionHeader
+        title="Unidades"
+        subtitle="Unidades de medida para productos."
+        right={
+          <button onClick={load} className="inline-flex items-center gap-2 rounded-md border bg-white px-3 py-2 text-sm hover:bg-neutral-100">
+            <RefreshCcw className="h-4 w-4" /> Refrescar
+          </button>
+        }
+      />
+
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+        <KpiCard label="Total unidades" value={rows.length} />
+      </div>
+
+      <form onSubmit={save} className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-3 rounded-xl border bg-white p-4">
+        <input className="border rounded-md px-3 py-2" placeholder="Nombre de la unidad (ej. und, kg, m)" value={nombre} onChange={e=>setNombre(e.target.value)} />
+        <button disabled={saving} className="rounded-md bg-black text-white px-4 py-2">
+          {saving ? "Guardando…" : "Crear"}
+        </button>
+      </form>
+
+      <div className="rounded-xl border bg-white overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead className="bg-neutral-100">
+            <tr>
+              <th className="p-2 text-left">ID</th>
+              <th className="p-2 text-left">Nombre</th>
+            </tr>
+          </thead>
+          <tbody>
+            {loading && <tr><td colSpan={2} className="p-4 text-center text-neutral-600">Cargando…</td></tr>}
+            {!loading && rows.length === 0 && <tr><td colSpan={2} className="p-6 text-center text-neutral-600">Aún no hay unidades.</td></tr>}
+            {!loading && rows.map(u=>(
+              <tr key={u.id} className="hover:bg-neutral-50">
+                <td className="p-2 border-t">{u.id}</td>
+                <td className="p-2 border-t">{u.nombre}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+}
