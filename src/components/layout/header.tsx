@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { User } from "@/lib/types";
 import { AuthService } from "@/service/auth/auth.service";
 import { onAuthChange } from "@/lib/auth-bus";
+import { ThemePicker } from "@/components/ui/ThemePicker";
 import {
   LogIn, LogOut, User2, Home, ShoppingCart, LayoutDashboard, Shield, Menu, X
 } from "lucide-react";
@@ -18,7 +19,7 @@ type MidLink = {
   match?: "exact" | "startsWith";
 };
 
-export default function Header() {
+export default function Header({ children }: { children?: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const [user, setUser] = useState<User | null>(null);
@@ -76,13 +77,14 @@ export default function Header() {
   }
 
   return (
-    <header className="border-b bg-white">
+  <header className="border-b bg-white dark:bg-neutral-900 dark:border-neutral-800 transition-colors">
       <div className="mx-auto max-w-6xl px-4">
         {/* Top bar */}
         <div className="flex h-14 items-center justify-between">
           {/* Marca */}
           <Link href="/" className="flex items-center gap-2 font-semibold">
-            <span>Marketplace</span>
+            <span className="text-emerald-600">UDLA</span>
+            <span className="text-neutral-700 dark:text-neutral-200">Ecommerce</span>
           </Link>
 
           {/* Nav centro (solo desktop) */}
@@ -105,6 +107,8 @@ export default function Header() {
           </nav>
 
           <div className="flex items-center gap-2">
+            <ThemePicker />
+            {children}
             <button
               onClick={() => setOpen(v => !v)}
               className="inline-flex h-10 w-10 items-center justify-center rounded-md hover:bg-neutral-100 md:hidden"
@@ -128,14 +132,15 @@ export default function Header() {
               </Link>
             ) : (
               <div className="hidden md:inline-flex items-center gap-2">
-                <div
+                <Link
+                  href="/profile"
                   title={`${user.username} · ${user.role}`}
-                  className="inline-flex items-center gap-2 rounded-full bg-neutral-200 px-3 py-1 text-xs text-neutral-900"
+                  className="inline-flex items-center gap-2 rounded-full bg-neutral-200 px-3 py-1 text-xs text-neutral-900 hover:bg-primary-50 transition"
                 >
                   <User2 size={16} />
                   <span className="truncate max-w-[12rem]">{user.username}</span>
                   <span className="opacity-70">· {user.role}</span>
-                </div>
+                </Link>
                 <button
                   onClick={logout}
                   title="Cerrar sesión"
@@ -183,11 +188,15 @@ export default function Header() {
                 </Link>
               ) : (
                 <>
-                  <div className="mx-1 mb-2 inline-flex items-center gap-2 rounded-full bg-neutral-200 px-3 py-1 text-xs text-neutral-900">
+                  <Link
+                    href="/profile"
+                    onClick={closeAnd("/profile")}
+                    className="mx-1 mb-2 inline-flex items-center gap-2 rounded-full bg-neutral-200 px-3 py-1 text-xs text-neutral-900 hover:bg-primary-50 transition"
+                  >
                     <User2 size={16} />
                     <span className="truncate">{user.username}</span>
                     <span className="opacity-70">· {user.role}</span>
-                  </div>
+                  </Link>
                   <button
                     onClick={logout}
                     className="inline-flex w-full items-center justify-center gap-2 rounded-md border px-4 py-3 text-sm hover:bg-neutral-100"

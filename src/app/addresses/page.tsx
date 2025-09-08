@@ -41,8 +41,9 @@ export default function AddressesPage() {
     try {
       const res = await AddressesService.list(); // -> Address[]
       setRows(res ?? []);
-    } catch (e: any) {
-      toast.error(e.message || "No se pudieron cargar las direcciones");
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "No se pudieron cargar las direcciones";
+      toast.error(msg);
       setRows([]);
     } finally {
       setLoading(false);
@@ -72,8 +73,9 @@ export default function AddressesPage() {
       setForm({ ...empty });
       setEditing(null);
       await load();
-    } catch (e: any) {
-      toast.error(e.message || "Error guardando la dirección");
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "Error guardando la dirección";
+      toast.error(msg);
     } finally {
       setSaving(false);
     }
@@ -85,8 +87,9 @@ export default function AddressesPage() {
       await AddressesService.remove(id);
       toast.success("Eliminada");
       await load();
-    } catch (e: any) {
-      toast.error(e.message || "No se pudo eliminar");
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "No se pudo eliminar";
+      toast.error(msg);
     }
   }
 

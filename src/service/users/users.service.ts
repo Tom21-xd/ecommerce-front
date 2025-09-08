@@ -15,4 +15,12 @@ export const UsersService = {
     const { data } = await http.delete<ApiOk<User>>(`/users/${id}`);
     return data.result;
   },
+  async profile() {
+    const { data } = await http.get<ApiOk<User>>("/users/profile");
+    return data.result;
+  },
+  async updateProfile(payload: { email?: string; username?: string; password?: string; phones?: string }) {
+    const { data } = await http.patch<ApiOk<User>>("/users/profile", payload);
+    return data.result;
+  },
 };

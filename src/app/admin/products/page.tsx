@@ -36,8 +36,9 @@ export default function AdminProductsPage() {
         _priceNum: typeof p.price === "string" ? parseFloat(p.price) : Number(p.price ?? 0),
       })) as Row[];
       setRows(list);
-    } catch (e: any) {
-      toast.error(e.message || "No se pudieron cargar los productos");
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "No se pudieron cargar los productos";
+      toast.error(msg);
       setRows([]);
     } finally {
       setLoading(false);

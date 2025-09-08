@@ -18,8 +18,9 @@ export default function AdminBrandsPage() {
     setLoading(true);
     try {
       setRows((await CatalogService.listMarca()) ?? []);
-    } catch (e: any) {
-      toast.error(e.message || "No se pudieron cargar marcas");
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "No se pudieron cargar marcas";
+      toast.error(msg);
       setRows([]);
     } finally { setLoading(false); }
   }
@@ -35,8 +36,9 @@ export default function AdminBrandsPage() {
       setNombre("");
       toast.success("Marca creada");
       await load();
-    } catch (e: any) {
-      toast.error(e.message || "Error creando marca");
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "Error creando marca";
+      toast.error(msg);
     } finally { setSaving(false); }
   }
 

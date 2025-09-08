@@ -18,8 +18,9 @@ export default function AdminUnitsPage() {
     setLoading(true);
     try {
       setRows((await CatalogService.listUnidad()) ?? []);
-    } catch (e: any) {
-      toast.error(e.message || "No se pudieron cargar unidades");
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "No se pudieron cargar unidades";
+      toast.error(msg);
       setRows([]);
     } finally { setLoading(false); }
   }
@@ -35,8 +36,9 @@ export default function AdminUnitsPage() {
       setNombre("");
       toast.success("Unidad creada");
       await load();
-    } catch (e: any) {
-      toast.error(e.message || "Error creando unidad");
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "Error creando unidad";
+      toast.error(msg);
     } finally { setSaving(false); }
   }
 

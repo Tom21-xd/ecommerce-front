@@ -33,8 +33,9 @@ export default function HomePage() {
       });
       setItems(res.products ?? []);
       setTotalPages(res.totalPages ?? 1);
-    } catch (e: any) {
-      setError(e.message || "Error cargando productos");
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "Error cargando productos";
+      setError(msg);
       setItems([]);
     } finally {
       setLoading(false);
@@ -48,8 +49,9 @@ export default function HomePage() {
       const res = await ProductsService.search(q);
       setItems(res.products ?? []);
       setTotalPages(1); // sin paginación en match
-    } catch (e: any) {
-      setError(e.message || "Error buscando productos");
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "Error buscando productos";
+      setError(msg);
       setItems([]);
     } finally {
       setLoading(false);
@@ -67,7 +69,6 @@ export default function HomePage() {
     else loadList(1);
   }
 
-  // cambio de página
   function onPage(p: number) {
     setPage(p);
     loadList(p);

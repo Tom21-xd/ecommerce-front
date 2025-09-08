@@ -6,6 +6,14 @@ export type User = {
   username: string;
   role: Role;
   createdAt?: string;
+  phones?: string;
+};
+
+export type UpdateProfileDto = {
+  email?: string;
+  username?: string;
+  password?: string;
+  phones?: string;
 };
 
 export type Product = {
@@ -13,10 +21,15 @@ export type Product = {
   name: string;
   sku: string;
   quantity: number;
-  price: number | string;   // Prisma Decimal llega como string
+  price: number | string;   
   isActive?: boolean;
   containerId?: number;
   container?: { id: number; user?: Pick<User, "id" | "email" | "username" | "role"> };
+  unidadId?: number;
+  marcaId?: number;
+  categoryIds?: number[];
+  ProductImage?: { base64: string; alt?: string; position?: number }[];
+  minStock?: number;
 };
 
 export type ProductContainer = {

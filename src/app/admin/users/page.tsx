@@ -25,8 +25,9 @@ export default function AdminUsersPage() {
         UsersService.byRole("BUYER"),
       ]);
       setRows([...(admins ?? []), ...(sellers ?? []), ...(buyers ?? [])]);
-    } catch (e: any) {
-      toast.error(e.message || "No se pudo cargar usuarios");
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "No se pudo cargar usuarios";
+      toast.error(msg);
       setRows([]);
     } finally { setLoading(false); }
   }

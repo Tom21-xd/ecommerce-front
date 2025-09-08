@@ -31,8 +31,9 @@ export default function AdminCategoriesPage() {
     try {
       const res = await CatalogService.listCategories();
       setRows(res ?? []);
-    } catch (e: any) {
-      toast.error(e.message || "No se pudieron cargar categorías");
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "No se pudieron cargar categorías";
+      toast.error(msg);
       setRows([]);
     } finally { setLoading(false); }
   }
@@ -71,8 +72,9 @@ export default function AdminCategoriesPage() {
       toast.success("Categoría creada");
       setName(""); setSlug(""); setParentId(undefined);
       await load();
-    } catch (e: any) {
-      toast.error(e.message || "Error creando categoría");
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "Error creando categoría";
+      toast.error(msg);
     } finally { setSaving(false); }
   }
 
