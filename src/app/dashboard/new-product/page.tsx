@@ -5,10 +5,11 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { CatalogService } from "@/service/catalog/catalog.service";
 import { ProductContainerService } from "@/service/product-container/product-container.service";
-import type { Category, Marca, ProductContainer, Unidad } from "@/lib/types";
+import type { Category, Marca, Unidad } from "@/lib/types";
 import type { CreateProductDto } from "@/service/products/dto";
 import { ArrowDown, ArrowUp, ImagePlus, Trash2 } from "lucide-react";
 import { ProductsService } from "@/service/products/product.service";
+import Image from "next/image";
 
 type ImgItem = { base64: string; alt?: string; position?: number };
 
@@ -187,7 +188,7 @@ export default function NewProductPage() {
         <div className="flex items-center gap-4 bg-neutral-50 dark:bg-neutral-800 rounded-xl p-3 shadow-inner min-w-[220px]">
           <div className="w-16 h-16 rounded-lg overflow-hidden border bg-white dark:bg-neutral-900 flex items-center justify-center">
             {images[0] ? (
-              <img src={images[0].base64} alt={images[0].alt || name || 'preview'} className="object-cover w-full h-full" />
+              <Image src={images[0].base64} alt={images[0].alt || name || 'preview'} className="object-cover w-full h-full" width={64} height={64} unoptimized />
             ) : (
               <span className="text-xs text-neutral-400">Sin imagen</span>
             )}
@@ -415,10 +416,13 @@ export default function NewProductPage() {
               {images.map((img, i) => (
                 <li key={i} className="rounded-lg border dark:border-neutral-700 p-2 bg-neutral-50 dark:bg-neutral-950 transition-all animate-fade-in">
                   <div className="aspect-square w-full overflow-hidden rounded shadow-sm">
-                    <img
+                    <Image
                       src={img.base64}
                       alt={img.alt || `img-${i}`}
                       className="h-full w-full object-cover"
+                      width={200}
+                      height={200}
+                      unoptimized
                     />
                   </div>
                   <input

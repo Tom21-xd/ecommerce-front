@@ -27,7 +27,7 @@ export default function ProductCard({ product, hideAddToCart }: { product: Produ
       await CartService.addItem({ productId: product.id, qty: 1 });
       setAdded(true);
       setTimeout(() => setAdded(false), 1200);
-    } catch (e) {
+    } catch {
       // Podrías mostrar un toast aquí
     } finally {
       setLoading(false);

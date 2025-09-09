@@ -2,19 +2,21 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Users, Layers, Box, Tag, PackageSearch, ChevronLeft, ChevronRight } from "lucide-react";
+import { Users, Layers, Box, Tag, PackageSearch, ChevronLeft, ChevronRight, MessageCircle } from "lucide-react";
 import { useState } from "react";
 
 export default function AdminSidebar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(true);
 
+  const isAdmin = true;
   const links = [
     { href: "/admin/products",   label: "Products",   icon: <PackageSearch size={18} /> },
     { href: "/admin/users",      label: "Usuarios",   icon: <Users size={18} /> },
     { href: "/admin/categories", label: "Categorías", icon: <Layers size={18} /> },
     { href: "/admin/units",      label: "Unidades",   icon: <Box size={18} /> },
     { href: "/admin/brands",     label: "Marcas",     icon: <Tag size={18} /> },
+    ...(isAdmin ? [{ href: "/admin/wpp", label: "WhatsApp", icon: <MessageCircle size={18} /> }] : []),
   ];
 
   return (
@@ -28,7 +30,7 @@ export default function AdminSidebar() {
       </button>
       <nav className="flex flex-col gap-1">
         {links.map(l => {
-          const active = pathname === l.href || pathname.startsWith(l.href + "/");
+          const active = pathname === l.href || (pathname && pathname.startsWith(l.href + "/"));
           return (
             <Link
               key={l.href}

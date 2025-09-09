@@ -8,7 +8,7 @@ import AdminSidebar from "@/components/admin/adminSidebar";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const [me, setMe] = useState<User | null>(null);
+  const [, setMe] = useState<User | null>(null);
   const [checking, setChecking] = useState(true);
 
   useEffect(() => {

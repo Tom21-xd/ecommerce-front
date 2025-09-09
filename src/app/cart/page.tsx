@@ -7,6 +7,7 @@ import { CartService } from "@/service/cart/cart.service";
 import type { Cart, CartItem } from "@/lib/types";
 import { toast } from "sonner";
 import Link from "next/link";
+import Image from "next/image";
 import { ShoppingCart, Trash2, Minus, Plus } from "lucide-react";
 
 export default function CartPage() {
@@ -95,7 +96,7 @@ export default function CartPage() {
                     {deleted ? (
                       <div className="text-neutral-300"><Trash2 size={32} /></div>
                     ) : (it.product && it.product.ProductImage?.[0]?.base64) ? (
-                      <img
+                      <Image
                         src={
                           it.product.ProductImage[0].base64.startsWith("data:")
                             ? it.product.ProductImage[0].base64
@@ -103,6 +104,9 @@ export default function CartPage() {
                         }
                         alt={it.product.ProductImage[0].alt || it.product.name}
                         className="object-cover w-full h-full transition group-hover:scale-105"
+                        width={100}
+                        height={100}
+                        unoptimized
                       />
                     ) : (
                       <div className="text-neutral-300"><ShoppingCart size={32} /></div>

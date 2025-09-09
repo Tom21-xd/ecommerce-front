@@ -30,8 +30,7 @@ export default function ProfilePage() {
         setUser(u);
         setForm({ email: u.email, username: u.username, phones: u.phones });
       })
-      .catch(() => toast.error("No se pudo cargar el perfil"))
-      .finally(() => setLoading(false));
+      .catch(() => toast.error("No se pudo cargar el perfil"));
     fetchAddresses();
     
   }, []);
@@ -328,8 +327,5 @@ export default function ProfilePage() {
       </div>
     </section>
   );
-}
-function setLoading(arg0: boolean): void {
-  throw new Error("Function not implemented.");
 }
 

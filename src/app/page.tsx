@@ -58,10 +58,8 @@ export default function HomePage() {
     }
   }
 
-  // carga inicial
   useEffect(() => { loadList(1); }, []);
 
-  // evento de búsqueda
   function onSearch(q: string) {
     setQuery(q);
     setPage(1);
