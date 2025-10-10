@@ -21,15 +21,22 @@ export type Product = {
   name: string;
   sku: string;
   quantity: number;
-  price: number | string;   
+  price: number | string;
+  description?: string;
   isActive?: boolean;
   containerId?: number;
   container?: { id: number; user?: Pick<User, "id" | "email" | "username" | "role"> };
   unidadId?: number;
   marcaId?: number;
+  unidad?: Unidad;
+  marca?: Marca;
   categoryIds?: number[];
+  ProductCategory?: { category: Category }[];
   ProductImage?: { base64: string; alt?: string; position?: number }[];
+  review?: Review[];
   minStock?: number;
+  createdAt?: string;
+  updatedAt?: string;
 };
 
 export type ProductContainer = {

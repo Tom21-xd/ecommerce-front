@@ -8,7 +8,7 @@ import { AuthService } from "@/service/auth/auth.service";
 import { onAuthChange } from "@/lib/auth-bus";
 import { ThemePicker } from "@/components/ui/ThemePicker";
 import {
-  LogIn, LogOut, User2, Home, ShoppingCart, LayoutDashboard, Shield, Menu, X
+  LogIn, LogOut, User2, Home, ShoppingCart, LayoutDashboard, Shield, Menu, X, Store
 } from "lucide-react";
 
 type MidLink = {
@@ -50,10 +50,11 @@ export default function Header({ children }: { children?: React.ReactNode }) {
 
   const midLinks = useMemo<MidLink[]>(
     () => [
-      { href: "/",               label: "Inicio",    icon: <Home size={18} />,            show: true,                        match: "exact" },
-      { href: "/cart",           label: "Carrito",   icon: <ShoppingCart size={18} />,    show: true,                        match: "startsWith" },
-      { href: "/dashboard",      label: "Dashboard", icon: <LayoutDashboard size={18} />, show: Boolean(user && (isSeller || isBuyer)), match: "startsWith" },
-      { href: "/admin/products", label: "Admin",     icon: <Shield size={18} />,          show: Boolean(user && isAdmin),    match: "startsWith" },
+      { href: "/",               label: "Inicio",      icon: <Home size={18} />,            show: true,                        match: "exact" },
+      { href: "/providers",      label: "Proveedores", icon: <Store size={18} />,           show: true,                        match: "startsWith" },
+      { href: "/cart",           label: "Carrito",     icon: <ShoppingCart size={18} />,    show: true,                        match: "startsWith" },
+      { href: "/dashboard",      label: "Dashboard",   icon: <LayoutDashboard size={18} />, show: Boolean(user && (isSeller || isBuyer)), match: "startsWith" },
+      { href: "/admin/products", label: "Admin",       icon: <Shield size={18} />,          show: Boolean(user && isAdmin),    match: "startsWith" },
     ],
     [user, isAdmin, isSeller, isBuyer]
   );
@@ -82,9 +83,9 @@ export default function Header({ children }: { children?: React.ReactNode }) {
         {/* Top bar */}
         <div className="flex h-14 items-center justify-between">
           {/* Marca */}
-          <Link href="/" className="flex items-center gap-2 font-semibold">
-            <span className="text-emerald-600">UDLA</span>
-            <span className="text-neutral-700 dark:text-neutral-200">Ecommerce</span>
+          <Link href="/" className="flex items-center gap-2 font-bold text-lg group">
+            <span className="text-green-600 dark:text-green-400 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">UDLA</span>
+            <span className="text-neutral-900 dark:text-neutral-100">Ecommerce</span>
           </Link>
 
           {/* Nav centro (solo desktop) */}
@@ -96,8 +97,8 @@ export default function Header({ children }: { children?: React.ReactNode }) {
                   key={l.href}
                   href={l.href}
                   aria-current={active ? "page" : undefined}
-                  className={`inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm transition
-                    ${active ? "bg-black text-white" : "hover:bg-neutral-100"}`}
+                  className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-all
+                    ${active ? "bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-md" : "text-neutral-700 dark:text-neutral-200 hover:bg-green-50 dark:hover:bg-green-900/20"}`}
                 >
                   {l.icon}
                   <span>{l.label}</span>
@@ -135,7 +136,7 @@ export default function Header({ children }: { children?: React.ReactNode }) {
                 <Link
                   href="/profile"
                   title={`${user.username} · ${user.role}`}
-                  className="inline-flex items-center gap-2 rounded-full bg-neutral-200 px-3 py-1 text-xs text-neutral-900 hover:bg-primary-50 transition"
+                  className="inline-flex items-center gap-2 rounded-full bg-green-100 dark:bg-green-900/30 px-3 py-1 text-xs font-semibold text-green-800 dark:text-green-200 hover:bg-green-200 dark:hover:bg-green-900/50 transition-all"
                 >
                   <User2 size={16} />
                   <span className="truncate max-w-[12rem]">{user.username}</span>

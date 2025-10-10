@@ -40,7 +40,7 @@ export const ProductsService = {
   },
 
   async update(id: string | number, body: Partial<CreateProductDto>) {
-    const { data } = await http.put<ApiOk<Product>>(`${PRODUCTS}/${id}`, body);
+    const { data } = await http.patch<ApiOk<Product>>(`${PRODUCTS}/${id}`, body);
     return data.result;
   },
 

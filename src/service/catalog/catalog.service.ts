@@ -11,6 +11,10 @@ export const CatalogService = {
     const { data } = await http.get<{ status: number; message: string; result: Unidad[] }>("/catalog/unidad");
     return data.result;
   },
+  async deleteUnidad(id: number) {
+    const { data } = await http.delete<{ status: number; message: string; result: { deleted: boolean; id: number } }>(`/catalog/unidad/${id}`);
+    return data.result;
+  },
 
   async createMarca(body: CreateMarcaDto) {
     const { data } = await http.post<{ status: number; message: string; result: Marca }>("/catalog/marca", body);
@@ -20,6 +24,10 @@ export const CatalogService = {
     const { data } = await http.get<{ status: number; message: string; result: Marca[] }>("/catalog/marca");
     return data.result;
   },
+  async deleteMarca(id: number) {
+    const { data } = await http.delete<{ status: number; message: string; result: { deleted: boolean; id: number } }>(`/catalog/marca/${id}`);
+    return data.result;
+  },
 
   async createCategory(body: CreateCategoryDto) {
     const { data } = await http.post<{ status: number; message: string; result: Category }>("/catalog/category", body);
@@ -27,6 +35,10 @@ export const CatalogService = {
   },
   async listCategories() {
     const { data } = await http.get<{ status: number; message: string; result: Category[] }>("/catalog/category");
+    return data.result;
+  },
+  async deleteCategory(id: number) {
+    const { data } = await http.delete<{ status: number; message: string; result: { deleted: boolean; id: number } }>(`/catalog/category/${id}`);
     return data.result;
   },
 
