@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { UsersService } from "@/service/users/users.service";
 import { ProductsService } from "@/service/products/product.service";
-import type { User, Product } from "@/lib/types";
+import type { User } from "@/lib/types";
 import { toast } from "sonner";
 import Link from "next/link";
 import { Store, Package, Search, TrendingUp, Mail, Phone } from "lucide-react";

@@ -37,7 +37,7 @@ export default function ProductCard({ product, hideAddToCart }: { product: Produ
       setAdded(true);
       toast.success("✨ Producto agregado al carrito");
       setTimeout(() => setAdded(false), 2000);
-    } catch (error) {
+    } catch {
       toast.error("Error al agregar al carrito");
     } finally {
       setLoading(false);

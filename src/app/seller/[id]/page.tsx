@@ -31,9 +31,9 @@ export default function SellerProfilePage() {
 
         // Obtener productos del vendedor
         const allProducts = await ProductsService.list({ limit: 1000, offset: 0 });
-        const sellerProducts = allProducts.products.filter(
+        const sellerProducts = allProducts.products?.filter(
           (p) => p.container?.user?.id === Number(id)
-        );
+        ) || [];
         setProducts(sellerProducts);
         setFilteredProducts(sellerProducts);
       } catch (error) {

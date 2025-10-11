@@ -36,7 +36,7 @@ export default function ProductDetailPage() {
         ]);
         setProduct(productData);
         setReviews(reviewsData);
-      } catch (error) {
+      } catch {
         toast.error("Error cargando el producto");
         router.push("/");
       } finally {
@@ -51,7 +51,7 @@ export default function ProductDetailPage() {
     try {
       await CartService.addItem({ productId: product.id, qty: 1 });
       toast.success("Producto agregado al carrito");
-    } catch (error) {
+    } catch {
       toast.error("Error al agregar al carrito");
     } finally {
       setAddingToCart(false);
@@ -279,7 +279,7 @@ export default function ProductDetailPage() {
                 </div>
                 {review.comment && (
                   <p className="text-sm leading-relaxed text-neutral-700 dark:text-neutral-300 italic">
-                    "{review.comment}"
+                    &quot;{review.comment}&quot;
                   </p>
                 )}
               </div>
