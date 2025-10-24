@@ -35,7 +35,10 @@ export default function DashboardPage() {
         {/* Header sticky */}
         <div className="sticky top-0 z-10 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md rounded-xl shadow-sm px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4 border border-neutral-200 dark:border-neutral-800">
           <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100 tracking-tight">Panel de vendedor</h1>
-          <Link className="rounded-md bg-primary-600 dark:bg-primary-500 text-white px-4 py-2 text-sm font-semibold shadow transition hover:bg-primary-700 dark:hover:bg-primary-400" href="/dashboard/new-product">+ Nuevo producto</Link>
+          <div className="flex gap-2">
+            <Link className="rounded-md bg-green-600 dark:bg-green-500 text-white px-4 py-2 text-sm font-semibold shadow transition hover:bg-green-700 dark:hover:bg-green-400" href="/dashboard/epayco-config">Configurar ePayco</Link>
+            <Link className="rounded-md bg-primary-600 dark:bg-primary-500 text-white px-4 py-2 text-sm font-semibold shadow transition hover:bg-primary-700 dark:hover:bg-primary-400" href="/dashboard/new-product">+ Nuevo producto</Link>
+          </div>
         </div>
 
         {/* KPIs modernos */}

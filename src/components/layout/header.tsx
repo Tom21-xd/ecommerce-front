@@ -8,7 +8,7 @@ import { AuthService } from "@/service/auth/auth.service";
 import { onAuthChange } from "@/lib/auth-bus";
 import { ThemePicker } from "@/components/ui/ThemePicker";
 import {
-  LogIn, LogOut, User2, Home, ShoppingCart, LayoutDashboard, Shield, Menu, X, Store
+  LogIn, LogOut, User2, Home, ShoppingCart, LayoutDashboard, Shield, Menu, X, Store, Package
 } from "lucide-react";
 
 type MidLink = {
@@ -53,6 +53,7 @@ export default function Header({ children }: { children?: React.ReactNode }) {
       { href: "/",               label: "Inicio",      icon: <Home size={18} />,            show: true,                        match: "exact" },
       { href: "/providers",      label: "Proveedores", icon: <Store size={18} />,           show: true,                        match: "startsWith" },
       { href: "/cart",           label: "Carrito",     icon: <ShoppingCart size={18} />,    show: true,                        match: "startsWith" },
+      { href: "/orders",         label: "Mis Pedidos", icon: <Package size={18} />,         show: Boolean(user),               match: "startsWith" },
       { href: "/dashboard",      label: "Dashboard",   icon: <LayoutDashboard size={18} />, show: Boolean(user && (isSeller || isBuyer)), match: "startsWith" },
       { href: "/admin/products", label: "Admin",       icon: <Shield size={18} />,          show: Boolean(user && isAdmin),    match: "startsWith" },
     ],

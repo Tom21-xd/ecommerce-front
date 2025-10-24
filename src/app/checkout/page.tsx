@@ -33,9 +33,19 @@ export default function CheckoutPage() {
   async function pay() {
     if(!selected){ toast.error("Selecciona una dirección"); return; }
     try{
-      await CartService.checkout({ addressId: selected });
-      toast.success("Pedido creado");
-      router.push("/");
+      const response = await CartService.checkout({ addressId: selected });
+      toast.success("Pedido creado exitosamente");
+
+      // Obtener el ID del pedido creado
+      const orderId = response?.id || response?.result?.id;
+
+      if (orderId) {
+        // Redirigir a la página de pago
+        router.push(`/orders/${orderId}/pay`);
+      } else {
+        // Si no hay ID, redirigir a la lista de pedidos
+        router.push("/orders");
+      }
     }catch(e: unknown){
       const msg = e instanceof Error ? e.message : "Error en checkout";
       toast.error(msg);
