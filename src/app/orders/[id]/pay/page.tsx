@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { http } from '@/lib/http';
@@ -23,8 +23,16 @@ interface Order {
       containerId: number;
       container: {
         userId: number;
+        user?: {
+          id: number;
+          username?: string;
+          email?: string;
+        };
       };
     };
+  }>;
+  payment?: Array<{
+    containerId: number | null;
   }>;
 }
 
@@ -44,63 +52,48 @@ interface EpaycoButtonData {
   externalRef?: string;
 }
 
+type EpaycoCheckoutResponse = {
+  x_cod_response?: string;
+  [key: string]: unknown;
+};
+
+function resolveSellerId(orderData: Order): number | null {
+  const firstProduct = orderData.pedido_producto[0];
+  return (
+    firstProduct?.producto?.container?.user?.id ||
+    firstProduct?.producto?.container?.userId ||
+    orderData.payment?.[0]?.containerId ||
+    null
+  );
+}
+
 export default function PayOrderPage() {
   const params = useParams();
   const router = useRouter();
-  const orderId = parseInt(params.id as string);
+  const orderId = parseInt(params.id as string, 10);
 
   const [order, setOrder] = useState<Order | null>(null);
   const [buttonData, setButtonData] = useState<EpaycoButtonData | null>(null);
   const [loading, setLoading] = useState(true);
   const [generatingButton, setGeneratingButton] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [sellerName, setSellerName] = useState<string>('');
 
-  useEffect(() => {
-    loadOrder();
-  }, [orderId]);
-
-  const loadOrder = async () => {
-    try {
-      const response = await http.get(`/orders/${orderId}`);
-      const orderData = response.data.result;
-      setOrder(orderData);
-
-      // Verificar si el pedido ya está pagado
-      if (orderData.status !== 'PENDING') {
-        setError('Este pedido ya no está pendiente de pago');
-        return;
-      }
-
-      // Generar botón de pago automáticamente
-      await generatePaymentButton(orderData);
-    } catch (error: any) {
-      console.error('Error al cargar pedido:', error);
-      setError('No se pudo cargar el pedido');
-      toast.error('Error al cargar el pedido');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const generatePaymentButton = async (orderData: Order) => {
+  const generatePaymentButton = useCallback(async (orderData: Order) => {
     setGeneratingButton(true);
     try {
-      // Obtener el ID del vendedor del primer producto
-      // En un escenario real, podrías tener múltiples vendedores por pedido
-      const firstProduct = orderData.pedido_producto[0];
-      const sellerId = firstProduct?.producto?.container?.userId;
+      const sellerId = resolveSellerId(orderData);
 
       if (!sellerId) {
         throw new Error('No se pudo obtener información del vendedor');
       }
 
-      // Calcular impuestos (ejemplo: 19% IVA)
       const subtotal = orderData.precio_total / 1.19;
       const iva = orderData.precio_total - subtotal;
 
       const response = await http.post('/payments/epayco/generate-button', {
         pedidoId: orderData.id,
-        sellerId: sellerId,
+        sellerId,
         amount: orderData.precio_total,
         tax: iva,
         taxBase: subtotal,
@@ -108,15 +101,17 @@ export default function PayOrderPage() {
       });
 
       setButtonData(response.data.result);
-    } catch (error: any) {
-      console.error('Error al generar botón de pago:', error);
-      const message =
-        error.response?.data?.message || error.message || 'Error al generar el botón de pago';
+    } catch (err: unknown) {
+      console.error('Error al generar botón de pago:', err);
+      const apiMessage = (err as { response?: { data?: { message?: string } } })?.response?.data
+        ?.message;
+      const fallbackMessage =
+        err instanceof Error ? err.message : 'Error al generar el botón de pago';
+      const message = apiMessage || fallbackMessage;
 
-      // Mensajes específicos según el error
       if (message.includes('no tiene configurada') || message.includes('desactivada')) {
         setError(
-          'El vendedor aún no ha configurado su cuenta de ePayco. Por favor, contacta al vendedor o intenta con otro método de pago.'
+          'El vendedor no tiene configurada su cuenta de ePayco. Por favor, contacta al vendedor o intenta con otro método de pago.',
         );
         toast.error('El vendedor no tiene ePayco configurado');
       } else {
@@ -126,21 +121,57 @@ export default function PayOrderPage() {
     } finally {
       setGeneratingButton(false);
     }
-  };
+  }, []);
 
-  const handlePaymentResponse = (response: any) => {
+  useEffect(() => {
+    const fetchOrder = async () => {
+      try {
+        const response = await http.get(`/orders/${orderId}`);
+        const orderData: Order = response.data.result;
+        setOrder(orderData);
+
+        const sellerId = resolveSellerId(orderData);
+        const vendor = orderData.pedido_producto[0]?.producto?.container?.user;
+        if (vendor || sellerId) {
+          setSellerName(
+            vendor?.username || vendor?.email || (sellerId ? `Vendedor #${sellerId}` : ''),
+          );
+        }
+
+        if (orderData.status !== 'PENDING') {
+          setError('Este pedido ya no está pendiente de pago');
+          return;
+        }
+
+        await generatePaymentButton(orderData);
+      } catch (err: unknown) {
+        console.error('Error al cargar pedido:', err);
+        setError('No se pudo cargar el pedido');
+        toast.error('Error al cargar el pedido');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOrder();
+  }, [orderId, generatePaymentButton]);
+
+  const handlePaymentResponse = (response: EpaycoCheckoutResponse) => {
     console.log('Respuesta de ePayco:', response);
 
-    if (response.x_cod_response === '1' || response.x_cod_response === '3') {
+    if (response.x_cod_response === '1') {
       toast.success('Pago procesado exitosamente');
+      router.push('/orders');
+    } else if (response.x_cod_response === '3') {
+      toast.info('Pago pendiente de confirmación');
       router.push('/orders');
     } else {
       toast.error('El pago no pudo ser procesado');
     }
   };
 
-  const handlePaymentError = (error: any) => {
-    console.error('Error en el pago:', error);
+  const handlePaymentError = (err: unknown) => {
+    console.error('Error en el pago:', err);
     toast.error('Error al procesar el pago');
   };
 
@@ -148,7 +179,7 @@ export default function PayOrderPage() {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600" />
         </div>
       </div>
     );
@@ -158,14 +189,14 @@ export default function PayOrderPage() {
     return (
       <div className="container mx-auto px-4 py-8 max-w-2xl">
         <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-6 text-center">
-          <AlertCircle size={48} className="mx-auto mb-4 text-red-600" />
-          <h2 className="text-xl font-bold text-red-900 dark:text-red-100 mb-2">
-            Error
-          </h2>
-          <p className="text-red-700 dark:text-red-300 mb-4">{error}</p>
+          <AlertCircle size={40} className="mx-auto mb-4 text-red-500" />
+          <p className="text-lg font-semibold text-red-700 dark:text-red-200 mb-2">{error}</p>
+          <p className="text-sm text-red-600 dark:text-red-300 mb-4">
+            Si crees que es un error, intenta nuevamente o contacta con soporte.
+          </p>
           <Link
             href="/orders"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
           >
             <ArrowLeft size={16} />
             Volver a mis pedidos
@@ -178,7 +209,6 @@ export default function PayOrderPage() {
   return (
     <section className="min-h-[80vh] px-4 py-8">
       <div className="max-w-4xl mx-auto">
-        {/* Header */}
         <div className="mb-6">
           <Link
             href="/orders"
@@ -188,27 +218,32 @@ export default function PayOrderPage() {
             Volver a mis pedidos
           </Link>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-            Pagar Pedido #{order.id}
+            Pagar pedido #{order.id}
           </h1>
+          {sellerName && (
+            <p className="text-sm text-neutral-500">Pago directo a {sellerName} vía ePayco</p>
+          )}
         </div>
 
         <div className="grid gap-6 lg:grid-cols-3">
-          {/* Resumen del pedido */}
           <div className="lg:col-span-2 space-y-6">
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
               <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
-                Resumen del Pedido
+                Resumen del pedido
               </h2>
 
               <div className="space-y-3">
                 {order.pedido_producto.map((item, idx) => (
-                  <div key={idx} className="flex justify-between border-b border-gray-200 dark:border-gray-700 pb-3">
+                  <div
+                    key={idx}
+                    className="flex justify-between border-b border-gray-200 dark:border-gray-700 pb-3"
+                  >
                     <div>
                       <p className="font-medium text-gray-900 dark:text-gray-100">
                         {item.nameAtPurchase}
                       </p>
                       <p className="text-sm text-gray-500">
-                        Cantidad: {item.cantidad} × ${item.priceUnit.toLocaleString('es-CO')}
+                        Cantidad: {item.cantidad} · ${item.priceUnit.toLocaleString('es-CO')}
                       </p>
                     </div>
                     <span className="font-semibold text-gray-900 dark:text-gray-100">
@@ -228,7 +263,6 @@ export default function PayOrderPage() {
               </div>
             </div>
 
-            {/* Información importante */}
             <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-6">
               <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-2 flex items-center gap-2">
                 <Package size={20} />
@@ -236,23 +270,22 @@ export default function PayOrderPage() {
               </h3>
               <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1 list-disc list-inside">
                 <li>Serás redirigido a la pasarela de pago de ePayco</li>
-                <li>El pago se procesará de forma segura</li>
-                <li>Recibirás una confirmación por correo electrónico</li>
-                <li>El vendedor será notificado automáticamente</li>
+                <li>El pago se procesa directamente en la cuenta de {sellerName || 'el vendedor'}</li>
+                <li>Recibirás una confirmación cuando el pago se apruebe</li>
+                <li>El pedido se actualiza automáticamente al confirmar el pago</li>
               </ul>
             </div>
           </div>
 
-          {/* Botón de pago */}
           <div className="lg:col-span-1">
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6 sticky top-8">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-                Realizar Pago
+                Realizar pago
               </h2>
 
               {generatingButton ? (
                 <div className="text-center py-8">
-                  <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-green-600 mx-auto mb-3"></div>
+                  <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-green-600 mx-auto mb-3" />
                   <p className="text-sm text-gray-600 dark:text-gray-400">
                     Generando botón de pago...
                   </p>
@@ -260,9 +293,7 @@ export default function PayOrderPage() {
               ) : buttonData ? (
                 <div className="space-y-4">
                   <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
-                      Monto a pagar:
-                    </p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Monto a pagar:</p>
                     <p className="text-2xl font-bold text-green-600 dark:text-green-400">
                       ${buttonData.amount.toLocaleString('es-CO')}
                     </p>
@@ -275,9 +306,7 @@ export default function PayOrderPage() {
                   />
 
                   <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
-                    {buttonData.test
-                      ? '🧪 Modo de prueba activo'
-                      : '🔒 Pago seguro'}
+                    {buttonData.test ? 'Modo de prueba activo' : 'Pago seguro'}
                   </p>
                 </div>
               ) : (

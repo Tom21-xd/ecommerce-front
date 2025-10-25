@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { http } from '@/lib/http';
 import { Package, Clock, CheckCircle, XCircle, Eye } from 'lucide-react';
@@ -21,7 +20,6 @@ interface Order {
 }
 
 export default function OrdersPage() {
-  const router = useRouter();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -31,11 +29,12 @@ export default function OrdersPage() {
 
   const loadOrders = async () => {
     try {
-      const response = await http.get('/orders');
+      const response = await http.get('/orders/me');
       setOrders(response.data.result || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error al cargar pedidos:', error);
-      toast.error('Error al cargar tus pedidos');
+      const msg = error instanceof Error ? error.message : 'Error al cargar tus pedidos';
+      toast.error(msg);
     } finally {
       setLoading(false);
     }

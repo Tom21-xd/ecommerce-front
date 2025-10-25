@@ -25,7 +25,7 @@ export type Product = {
   description?: string;
   isActive?: boolean;
   containerId?: number;
-  container?: { id: number; user?: Pick<User, "id" | "email" | "username" | "role"> };
+  container?: { id: number; userId?: number; user?: Pick<User, "id" | "email" | "username" | "role" | "phones"> };
   unidadId?: number;
   marcaId?: number;
   unidad?: Unidad;
