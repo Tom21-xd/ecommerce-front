@@ -58,13 +58,32 @@ type EpaycoCheckoutResponse = {
 };
 
 function resolveSellerId(orderData: Order): number | null {
-  const firstProduct = orderData.pedido_producto[0];
-  return (
-    firstProduct?.producto?.container?.user?.id ||
-    firstProduct?.producto?.container?.userId ||
-    orderData.payment?.[0]?.containerId ||
-    null
-  );
+  // Verificar si hay múltiples vendedores
+  const sellerIds = new Set<number>();
+
+  for (const item of orderData.pedido_producto) {
+    const sellerId =
+      item?.producto?.container?.user?.id ||
+      item?.producto?.container?.userId ||
+      item?.producto?.containerId;
+
+    if (sellerId) {
+      sellerIds.add(sellerId);
+    }
+  }
+
+  // Si hay múltiples vendedores, devolver null (pago multi-vendedor)
+  if (sellerIds.size > 1) {
+    return null;
+  }
+
+  // Si hay un solo vendedor, devolverlo
+  if (sellerIds.size === 1) {
+    return Array.from(sellerIds)[0];
+  }
+
+  // Fallback: intentar obtener del pago
+  return orderData.payment?.[0]?.containerId || null;
 }
 
 export default function PayOrderPage() {
@@ -84,21 +103,30 @@ export default function PayOrderPage() {
     try {
       const sellerId = resolveSellerId(orderData);
 
-      if (!sellerId) {
-        throw new Error('No se pudo obtener información del vendedor');
-      }
-
       const subtotal = orderData.precio_total / 1.19;
       const iva = orderData.precio_total - subtotal;
 
-      const response = await http.post('/payments/epayco/generate-button', {
+      const payload: {
+        pedidoId: number;
+        sellerId?: number;
+        amount: number;
+        tax: number;
+        taxBase: number;
+        description: string;
+      } = {
         pedidoId: orderData.id,
-        sellerId,
         amount: orderData.precio_total,
         tax: iva,
         taxBase: subtotal,
         description: `Pago del pedido #${orderData.id}`,
-      });
+      };
+
+      // Solo incluir sellerId si existe (pago de un solo vendedor)
+      if (sellerId) {
+        payload.sellerId = sellerId;
+      }
+
+      const response = await http.post('/payments/epayco/generate-button', payload);
 
       setButtonData(response.data.result);
     } catch (err: unknown) {

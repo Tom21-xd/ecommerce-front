@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { AddressesService } from "@/service/addresses/addresses.service";
 import { CartService } from "@/service/cart/cart.service";
 import type { Address, CartItem } from "@/lib/types";
@@ -11,33 +11,20 @@ import Link from "next/link";
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const params = useSearchParams();
-  const sellerParam = params.get("sellerId");
-  const sellerId =
-    sellerParam && !Number.isNaN(Number(sellerParam)) ? Number(sellerParam) : undefined;
 
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [selected, setSelected] = useState<number | undefined>(undefined);
   const [loading, setLoading] = useState(true);
-  const [sellerItems, setSellerItems] = useState<CartItem[]>([]);
-  const [sellerName, setSellerName] = useState<string>("");
-  const [sellerError, setSellerError] = useState<string | null>(null);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
 
-  const sellerTotal = useMemo(
-    () => sellerItems.reduce((acc, it) => acc + Number(it.priceAtAdd) * it.qty, 0),
-    [sellerItems],
+  const total = useMemo(
+    () => cartItems.reduce((acc, it) => acc + Number(it.priceAtAdd) * it.qty, 0),
+    [cartItems],
   );
 
   async function load() {
     setLoading(true);
     try {
-      if (!sellerId) {
-        setSellerError("Selecciona un vendedor desde tu carrito para continuar con el pago.");
-        setAddresses([]);
-        setSellerItems([]);
-        return;
-      }
-
       const [addrRes, cartRes] = await Promise.all([
         AddressesService.list(),
         CartService.get(),
@@ -47,23 +34,7 @@ export default function CheckoutPage() {
       const def = addrRes.find((a) => a.isDefault);
       setSelected(def?.id ?? addrRes[0]?.id);
 
-      const itemsForSeller = cartRes.items.filter((it) => {
-        const owner = it.product?.container?.user;
-        const id =
-          owner?.id ?? it.product?.container?.userId ?? it.product?.containerId;
-        return id === sellerId;
-      });
-
-      if (itemsForSeller.length === 0) {
-        setSellerError("No encontramos productos de este vendedor en tu carrito.");
-        setSellerItems([]);
-        return;
-      }
-
-      setSellerItems(itemsForSeller);
-      const owner = itemsForSeller[0].product?.container?.user;
-      setSellerName(owner?.username || owner?.email || `Vendedor #${sellerId}`);
-      setSellerError(null);
+      setCartItems(cartRes.items);
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "Error cargando la información";
       toast.error(msg);
@@ -74,20 +45,15 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sellerId]);
+  }, []);
 
   async function pay() {
-    if (!sellerId) {
-      toast.error("Selecciona un vendedor para continuar");
-      return;
-    }
     if (!selected) {
       toast.error("Selecciona una dirección");
       return;
     }
     try {
-      const response = await CartService.checkout({ addressId: selected, sellerId });
+      const response = await CartService.checkout({ addressId: selected });
       toast.success("Pedido creado exitosamente");
 
       const orderId = response?.id || response?.result?.id;
@@ -103,7 +69,7 @@ export default function CheckoutPage() {
     }
   }
 
-  if (!sellerId) {
+  if (!loading && cartItems.length === 0) {
     return (
       <section className="min-h-[70vh] px-4 py-12 flex items-center justify-center">
         <div className="max-w-xl w-full rounded-3xl border border-dashed border-neutral-300 dark:border-neutral-700 p-8 text-center">
@@ -111,17 +77,16 @@ export default function CheckoutPage() {
             <ShoppingCart size={40} className="text-neutral-400 dark:text-neutral-500" />
           </div>
           <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-3">
-            Selecciona un vendedor
+            Tu carrito está vacío
           </h1>
           <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-6">
-            Para finalizar la compra debes elegir el carrito de un vendedor desde la página de
-            carrito.
+            Agrega productos a tu carrito antes de continuar con el pago.
           </p>
           <Link
-            href="/cart"
+            href="/"
             className="inline-flex items-center gap-2 rounded-2xl bg-green-600 text-white px-6 py-3 font-semibold shadow hover:bg-green-700 transition"
           >
-            Volver al carrito
+            Explorar productos
           </Link>
         </div>
       </section>
@@ -138,14 +103,11 @@ export default function CheckoutPage() {
               <CreditCard size={32} className="text-white" />
             </div>
             <div>
-              <p className="text-white/80 text-sm uppercase tracking-[0.3em]">
-                Pago por vendedor
-              </p>
               <h1 className="text-3xl md:text-4xl font-bold text-white drop-shadow-lg">
-                Finalizar compra con {sellerName || "tu vendedor"}
+                Finalizar compra
               </h1>
               <p className="text-white/90 text-sm md:text-base mt-1">
-                Revisa la dirección de entrega y confirma el pedido
+                Revisa la dirección de entrega y confirma tu pedido
               </p>
             </div>
           </div>
@@ -161,18 +123,7 @@ export default function CheckoutPage() {
           </div>
         )}
 
-        {!loading && sellerError && (
-          <div className="rounded-3xl border-2 border-dashed border-yellow-300 dark:border-yellow-700 bg-yellow-50 dark:bg-yellow-900/20 p-10 text-center shadow">
-            <p className="text-lg font-semibold text-yellow-900 dark:text-yellow-200 mb-3">
-              {sellerError}
-            </p>
-            <Link href="/cart" className="btn-primary inline-flex items-center gap-2">
-              Volver al carrito
-            </Link>
-          </div>
-        )}
-
-        {!loading && !sellerError && (
+        {!loading && (
           <div className="grid gap-6 lg:grid-cols-3">
             <div className="lg:col-span-2 space-y-4">
               <div className="glass rounded-2xl border-2 border-neutral-200 dark:border-neutral-700 p-6 shadow-lg">
@@ -262,19 +213,19 @@ export default function CheckoutPage() {
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <p className="text-xs uppercase tracking-[0.3em] text-neutral-500">
-                      Resumen del vendedor
+                      Productos en tu pedido
                     </p>
                     <h3 className="text-lg font-bold text-neutral-900 dark:text-neutral-100">
-                      {sellerName}
+                      Resumen de compra
                     </h3>
                   </div>
                   <span className="text-sm font-semibold text-green-600 dark:text-green-400">
-                    {sellerItems.length} {sellerItems.length === 1 ? "producto" : "productos"}
+                    {cartItems.length} {cartItems.length === 1 ? "producto" : "productos"}
                   </span>
                 </div>
 
                 <div className="space-y-3">
-                  {sellerItems.map((item) => (
+                  {cartItems.map((item) => (
                     <div
                       key={item.id}
                       className="flex items-center justify-between border border-neutral-100 dark:border-neutral-800 rounded-xl px-4 py-3"
@@ -307,17 +258,17 @@ export default function CheckoutPage() {
                       Total a pagar
                     </p>
                     <p className="text-3xl font-extrabold text-green-600 dark:text-green-400">
-                      ${sellerTotal.toLocaleString("es-CO")}
+                      ${total.toLocaleString("es-CO")}
                     </p>
                     <p className="text-xs text-neutral-500 mt-1">
-                      Pagas directamente a {sellerName} vía ePayco
+                      Pago procesado vía ePayco
                     </p>
                   </div>
                   <button
                     onClick={pay}
-                    disabled={!selected || sellerItems.length === 0}
+                    disabled={!selected || cartItems.length === 0}
                     className={`w-full flex items-center justify-center gap-2 rounded-xl px-6 py-4 font-bold text-white shadow-lg transition-all duration-300 ${
-                      selected && sellerItems.length > 0
+                      selected && cartItems.length > 0
                         ? "bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 hover:shadow-2xl hover:-translate-y-1 active:scale-95"
                         : "bg-neutral-400 dark:bg-neutral-700 cursor-not-allowed"
                     }`}
