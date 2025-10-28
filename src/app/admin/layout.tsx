@@ -30,7 +30,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   if (checking) {
     return (
-      <div className="mx-auto max-w-7xl px-4 py-10 text-sm text-neutral-600">
+      <div className="mx-auto max-w-7xl px-4 py-10 text-sm text-neutral-600 dark:text-neutral-400">
         Verificando permisos…
       </div>
     );

@@ -5,7 +5,7 @@ import type { Product } from "@/lib/types";
 import Link from "next/link";
 import { ProductsService } from "@/service/products/product.service";
 import KpiCard from "@/components/admin/kpiCard";
-import { Package, AlertTriangle, Layers } from "lucide-react";
+import { Package, AlertTriangle, Layers, DollarSign, Building2, ShoppingBag } from "lucide-react";
 import ProductGrid from "@/components/product/productGrid";
 import EmptyState from "@/components/common/emptyState";
 
@@ -30,13 +30,24 @@ export default function DashboardPage() {
   const totalStock = useMemo(() => items.reduce((acc, p) => acc + (typeof p.quantity === 'number' ? p.quantity : 0), 0), [items]);
 
   return (
-    <section className="flex flex-col min-h-[100dvh] items-center justify-center px-2">
-      <div className="w-full max-w-4xl space-y-8 py-10">
-        {/* Header sticky */}
-        <div className="sticky top-0 z-10 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md rounded-xl shadow-sm px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4 border border-neutral-200 dark:border-neutral-800">
+    <section className="min-h-screen px-4 py-6">
+      <div className="w-full max-w-6xl mx-auto space-y-6">
+        {/* Header */}
+        <div className="bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md rounded-xl shadow-sm px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border border-neutral-200 dark:border-neutral-800">
           <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100 tracking-tight">Panel de vendedor</h1>
-          <div className="flex gap-2">
-            <Link className="rounded-md bg-green-600 dark:bg-green-500 text-white px-4 py-2 text-sm font-semibold shadow transition hover:bg-green-700 dark:hover:bg-green-400" href="/dashboard/epayco-config">Configurar ePayco</Link>
+          <div className="flex flex-wrap gap-2">
+            <Link className="inline-flex items-center gap-1 rounded-md bg-green-600 dark:bg-green-500 text-white px-4 py-2 text-sm font-semibold shadow transition hover:bg-green-700 dark:hover:bg-green-400" href="/dashboard/orders">
+              <ShoppingBag size={16} />
+              Pedidos Pendientes
+            </Link>
+            <Link className="inline-flex items-center gap-1 rounded-md bg-blue-600 dark:bg-blue-500 text-white px-4 py-2 text-sm font-semibold shadow transition hover:bg-blue-700 dark:hover:bg-blue-400" href="/dashboard/payouts">
+              <DollarSign size={16} />
+              Mis Pagos
+            </Link>
+            <Link className="inline-flex items-center gap-1 rounded-md bg-purple-600 dark:bg-purple-500 text-white px-4 py-2 text-sm font-semibold shadow transition hover:bg-purple-700 dark:hover:bg-purple-400" href="/dashboard/bank-accounts">
+              <Building2 size={16} />
+              Cuentas Bancarias
+            </Link>
             <Link className="rounded-md bg-primary-600 dark:bg-primary-500 text-white px-4 py-2 text-sm font-semibold shadow transition hover:bg-primary-700 dark:hover:bg-primary-400" href="/dashboard/new-product">+ Nuevo producto</Link>
           </div>
         </div>
@@ -54,16 +65,19 @@ export default function DashboardPage() {
           </KpiCard>
         </div>
 
-        {/* Productos visuales */}
-        <div className="mt-10">
+        {/* Productos */}
+        <div>
+          <h2 className="text-xl font-bold text-neutral-900 dark:text-neutral-100 mb-4">
+            Mis Productos
+          </h2>
           {loading ? (
-            <div className="flex justify-center items-center py-10">
-              <span className="text-neutral-600 dark:text-neutral-300">Cargando…</span>
+            <div className="flex justify-center items-center py-20">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
             </div>
           ) : items.length === 0 ? (
             <EmptyState text="No tienes productos registrados. ¡Agrega tu primer producto!" />
           ) : (
-            <div className="rounded-xl bg-white/80 dark:bg-neutral-900/80 p-4 shadow-sm border border-neutral-200 dark:border-neutral-800">
+            <div className="rounded-xl bg-white dark:bg-neutral-900 p-6 shadow-sm border border-neutral-200 dark:border-neutral-800">
               <ProductGrid items={items} hideAddToCart />
             </div>
           )}

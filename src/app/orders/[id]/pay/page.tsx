@@ -109,11 +109,11 @@ export default function PayOrderPage() {
         err instanceof Error ? err.message : 'Error al generar el botón de pago';
       const message = apiMessage || fallbackMessage;
 
-      if (message.includes('no tiene configurada') || message.includes('desactivada')) {
+      if (message.includes('no tiene configurada') || message.includes('desactivada') || message.includes('no hay configuracion')) {
         setError(
-          'El vendedor no tiene configurada su cuenta de ePayco. Por favor, contacta al vendedor o intenta con otro método de pago.',
+          'El sistema de pagos no está configurado correctamente. Por favor, contacta con soporte.',
         );
-        toast.error('El vendedor no tiene ePayco configurado');
+        toast.error('Error en la configuración de pagos');
       } else {
         setError(message);
         toast.error(message);
@@ -221,7 +221,7 @@ export default function PayOrderPage() {
             Pagar pedido #{order.id}
           </h1>
           {sellerName && (
-            <p className="text-sm text-neutral-500">Pago directo a {sellerName} vía ePayco</p>
+            <p className="text-sm text-neutral-500">Compra a {sellerName} - Pago seguro vía ePayco</p>
           )}
         </div>
 
@@ -270,7 +270,8 @@ export default function PayOrderPage() {
               </h3>
               <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1 list-disc list-inside">
                 <li>Serás redirigido a la pasarela de pago de ePayco</li>
-                <li>El pago se procesa directamente en la cuenta de {sellerName || 'el vendedor'}</li>
+                <li>El pago se procesa de forma segura a través del marketplace</li>
+                <li>{sellerName || 'El vendedor'} recibirá su pago en los próximos días</li>
                 <li>Recibirás una confirmación cuando el pago se apruebe</li>
                 <li>El pedido se actualiza automáticamente al confirmar el pago</li>
               </ul>

@@ -84,7 +84,7 @@ export default function AdminCategoriesPage() {
         title="Categorías"
         subtitle="Gestión de taxonomía y jerarquías."
         right={
-          <button onClick={load} className="inline-flex items-center gap-2 rounded-md border bg-white px-3 py-2 text-sm hover:bg-neutral-100">
+          <button onClick={load} className="inline-flex items-center gap-2 rounded-md border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 px-3 py-2 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-700">
             <RefreshCcw className="h-4 w-4" /> Refrescar
           </button>
         }
@@ -98,16 +98,16 @@ export default function AdminCategoriesPage() {
       </div>
 
       {/* Form */}
-      <form onSubmit={save} className="grid grid-cols-1 gap-3 rounded-xl border bg-white p-4 sm:grid-cols-[1fr_1fr_1fr_auto]">
-        <input className="border rounded-md px-3 py-2" placeholder="Nombre" value={name} onChange={e=>setName(e.target.value)} />
-        <input className="border rounded-md px-3 py-2" placeholder="Slug" value={slug} onChange={e=>setSlug(e.target.value)} />
-        <select className="border rounded-md px-3 py-2" value={parentId ?? 0} onChange={e=>setParentId(Number(e.target.value)||undefined)}>
+      <form onSubmit={save} className="grid grid-cols-1 gap-3 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4 sm:grid-cols-[1fr_1fr_1fr_auto]">
+        <input className="border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 rounded-md px-3 py-2" placeholder="Nombre" value={name} onChange={e=>setName(e.target.value)} />
+        <input className="border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 rounded-md px-3 py-2" placeholder="Slug" value={slug} onChange={e=>setSlug(e.target.value)} />
+        <select className="border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 rounded-md px-3 py-2" value={parentId ?? 0} onChange={e=>setParentId(Number(e.target.value)||undefined)}>
           <option value={0}>(Sin padre)</option>
           {rows.filter(c => !c.parentId).map(c => (
             <option key={c.id} value={c.id}>{c.name}</option>
           ))}
         </select>
-        <button disabled={saving} className="rounded-md bg-black text-white px-4 py-2">
+        <button disabled={saving} className="rounded-md bg-black dark:bg-white text-white dark:text-black px-4 py-2 hover:bg-neutral-800 dark:hover:bg-neutral-200">
           {saving ? "Guardando…" : "Crear"}
         </button>
       </form>
@@ -126,25 +126,25 @@ export default function AdminCategoriesPage() {
       </ChartCard>
 
       {/* Tabla */}
-      <div className="rounded-xl border bg-white overflow-x-auto">
+      <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 overflow-x-auto">
         <table className="w-full text-sm">
-          <thead className="bg-neutral-100">
+          <thead className="bg-neutral-100 dark:bg-neutral-800">
             <tr>
-              <th className="p-2 text-left">ID</th>
-              <th className="p-2 text-left">Nombre</th>
-              <th className="p-2">Slug</th>
-              <th className="p-2">Padre</th>
+              <th className="p-2 text-left text-neutral-900 dark:text-neutral-100">ID</th>
+              <th className="p-2 text-left text-neutral-900 dark:text-neutral-100">Nombre</th>
+              <th className="p-2 text-neutral-900 dark:text-neutral-100">Slug</th>
+              <th className="p-2 text-neutral-900 dark:text-neutral-100">Padre</th>
             </tr>
           </thead>
           <tbody>
-            {loading && <tr><td colSpan={4} className="p-4 text-center text-neutral-600">Cargando…</td></tr>}
-            {!loading && rows.length === 0 && <tr><td colSpan={4} className="p-6 text-center text-neutral-600">Sin resultados</td></tr>}
+            {loading && <tr><td colSpan={4} className="p-4 text-center text-neutral-600 dark:text-neutral-400">Cargando…</td></tr>}
+            {!loading && rows.length === 0 && <tr><td colSpan={4} className="p-6 text-center text-neutral-600 dark:text-neutral-400">Sin resultados</td></tr>}
             {!loading && rows.map(c => (
-              <tr key={c.id} className="hover:bg-neutral-50">
-                <td className="p-2 border-t">{c.id}</td>
-                <td className="p-2 border-t">{c.name}</td>
-                <td className="p-2 border-t text-center">{c.slug}</td>
-                <td className="p-2 border-t text-center">
+              <tr key={c.id} className="hover:bg-neutral-50 dark:hover:bg-neutral-800">
+                <td className="p-2 border-t border-neutral-200 dark:border-neutral-700 text-neutral-900 dark:text-neutral-100">{c.id}</td>
+                <td className="p-2 border-t border-neutral-200 dark:border-neutral-700 text-neutral-900 dark:text-neutral-100">{c.name}</td>
+                <td className="p-2 border-t border-neutral-200 dark:border-neutral-700 text-center text-neutral-900 dark:text-neutral-100">{c.slug}</td>
+                <td className="p-2 border-t border-neutral-200 dark:border-neutral-700 text-center text-neutral-900 dark:text-neutral-100">
                   {rows.find(r => r.id === (c.parentId ?? -1))?.name ?? "—"}
                 </td>
               </tr>

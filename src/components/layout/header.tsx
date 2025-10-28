@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import type { User } from "@/lib/types";
@@ -85,8 +86,15 @@ export default function Header({ children }: { children?: React.ReactNode }) {
         <div className="flex h-14 items-center justify-between">
           {/* Marca */}
           <Link href="/" className="flex items-center gap-2 font-bold text-lg group">
-            <span className="text-green-600 dark:text-green-400 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">UDLA</span>
-            <span className="text-neutral-900 dark:text-neutral-100">Ecommerce</span>
+            <Image
+              src="/tienda_verde.png"
+              alt="Tienda Verde Logo"
+              width={32}
+              height={32}
+              className="object-contain"
+            />
+            <span className="text-green-600 dark:text-green-400 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">Tienda</span>
+            <span className="text-neutral-900 dark:text-neutral-100">Verde</span>
           </Link>
 
           {/* Nav centro (solo desktop) */}

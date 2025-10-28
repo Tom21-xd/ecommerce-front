@@ -117,25 +117,25 @@ export default function AdminProductsPage() {
     <section className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-xl font-semibold">Productos (Admin)</h1>
-          <p className="text-sm text-neutral-600">Vista con métricas, gráficos y tabla filtrable.</p>
+          <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Productos (Admin)</h1>
+          <p className="text-sm text-neutral-600 dark:text-neutral-400">Vista con métricas, gráficos y tabla filtrable.</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <div className="relative">
-            <Search className="pointer-events-none absolute left-2 top-2.5 h-4 w-4 text-neutral-500" />
+            <Search className="pointer-events-none absolute left-2 top-2.5 h-4 w-4 text-neutral-500 dark:text-neutral-400" />
             <input
-              className="w-56 rounded-md border bg-white pl-8 pr-3 py-2 text-sm"
+              className="w-56 rounded-md border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 pl-8 pr-3 py-2 text-sm"
               placeholder="Buscar nombre/sku/vendedor"
               value={q}
               onChange={(e) => setQ(e.target.value)}
             />
           </div>
           <div className="relative">
-            <Filter className="pointer-events-none absolute left-2 top-2.5 h-4 w-4 text-neutral-500" />
+            <Filter className="pointer-events-none absolute left-2 top-2.5 h-4 w-4 text-neutral-500 dark:text-neutral-400" />
             <input
               type="number"
               min={0}
-              className="w-40 rounded-md border bg-white pl-8 pr-3 py-2 text-sm"
+              className="w-40 rounded-md border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 pl-8 pr-3 py-2 text-sm"
               placeholder="Stock mínimo"
               value={minStock}
               onChange={(e) => setMinStock(Number(e.target.value || 0))}
@@ -143,7 +143,7 @@ export default function AdminProductsPage() {
           </div>
           <button
             onClick={load}
-            className="inline-flex items-center gap-2 rounded-md border bg-white px-3 py-2 text-sm hover:bg-neutral-100"
+            className="inline-flex items-center gap-2 rounded-md border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 px-3 py-2 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-700"
             title="Refrescar"
           >
             <RefreshCcw className="h-4 w-4" />
@@ -151,7 +151,7 @@ export default function AdminProductsPage() {
           </button>
           <button
             onClick={exportCSV}
-            className="inline-flex items-center gap-2 rounded-md border bg-white px-3 py-2 text-sm hover:bg-neutral-100"
+            className="inline-flex items-center gap-2 rounded-md border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 px-3 py-2 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-700"
             title="Exportar CSV"
           >
             <Printer className="h-4 w-4" />
@@ -204,39 +204,39 @@ export default function AdminProductsPage() {
       </div>
 
       {/* Tabla */}
-      <div className="rounded-xl border bg-white p-0 shadow-sm overflow-x-auto">
+      <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-0 shadow-sm overflow-x-auto">
         <table className="w-full text-sm">
-          <thead className="bg-neutral-100">
+          <thead className="bg-neutral-100 dark:bg-neutral-800">
             <tr>
-              <th className="p-2 border-b text-left">ID</th>
-              <th className="p-2 border-b text-left">Nombre</th>
-              <th className="p-2 border-b">SKU</th>
-              <th className="p-2 border-b">Stock</th>
-              <th className="p-2 border-b">Precio</th>
-              <th className="p-2 border-b text-left">Vendedor</th>
+              <th className="p-2 border-b border-neutral-200 dark:border-neutral-700 text-left text-neutral-900 dark:text-neutral-100">ID</th>
+              <th className="p-2 border-b border-neutral-200 dark:border-neutral-700 text-left text-neutral-900 dark:text-neutral-100">Nombre</th>
+              <th className="p-2 border-b border-neutral-200 dark:border-neutral-700 text-neutral-900 dark:text-neutral-100">SKU</th>
+              <th className="p-2 border-b border-neutral-200 dark:border-neutral-700 text-neutral-900 dark:text-neutral-100">Stock</th>
+              <th className="p-2 border-b border-neutral-200 dark:border-neutral-700 text-neutral-900 dark:text-neutral-100">Precio</th>
+              <th className="p-2 border-b border-neutral-200 dark:border-neutral-700 text-left text-neutral-900 dark:text-neutral-100">Vendedor</th>
             </tr>
           </thead>
           <tbody>
             {loading && (
               <tr>
-                <td colSpan={6} className="p-4 text-center text-neutral-600">Cargando…</td>
+                <td colSpan={6} className="p-4 text-center text-neutral-600 dark:text-neutral-400">Cargando…</td>
               </tr>
             )}
             {!loading && filtered.length === 0 && (
               <tr>
-                <td colSpan={6} className="p-6 text-center text-neutral-600">Sin resultados</td>
+                <td colSpan={6} className="p-6 text-center text-neutral-600 dark:text-neutral-400">Sin resultados</td>
               </tr>
             )}
             {!loading && filtered.map((p) => (
-              <tr key={p.id} className="hover:bg-neutral-50">
-                <td className="p-2 border-t">{p.id}</td>
-                <td className="p-2 border-t">{p.name}</td>
-                <td className="p-2 border-t text-center">{p.sku}</td>
-                <td className="p-2 border-t text-center">{p.quantity}</td>
-                <td className="p-2 border-t text-right">
+              <tr key={p.id} className="hover:bg-neutral-50 dark:hover:bg-neutral-800">
+                <td className="p-2 border-t border-neutral-200 dark:border-neutral-700 text-neutral-900 dark:text-neutral-100">{p.id}</td>
+                <td className="p-2 border-t border-neutral-200 dark:border-neutral-700 text-neutral-900 dark:text-neutral-100">{p.name}</td>
+                <td className="p-2 border-t border-neutral-200 dark:border-neutral-700 text-center text-neutral-900 dark:text-neutral-100">{p.sku}</td>
+                <td className="p-2 border-t border-neutral-200 dark:border-neutral-700 text-center text-neutral-900 dark:text-neutral-100">{p.quantity}</td>
+                <td className="p-2 border-t border-neutral-200 dark:border-neutral-700 text-right text-neutral-900 dark:text-neutral-100">
                   {Intl.NumberFormat("es-CO", { style: "currency", currency: "COP" }).format(p._priceNum || 0)}
                 </td>
-                <td className="p-2 border-t">{p._seller}</td>
+                <td className="p-2 border-t border-neutral-200 dark:border-neutral-700 text-neutral-900 dark:text-neutral-100">{p._seller}</td>
               </tr>
             ))}
           </tbody>

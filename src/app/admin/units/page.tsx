@@ -48,7 +48,7 @@ export default function AdminUnitsPage() {
         title="Unidades"
         subtitle="Unidades de medida para productos."
         right={
-          <button onClick={load} className="inline-flex items-center gap-2 rounded-md border bg-white px-3 py-2 text-sm hover:bg-neutral-100">
+          <button onClick={load} className="inline-flex items-center gap-2 rounded-md border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 px-3 py-2 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-700">
             <RefreshCcw className="h-4 w-4" /> Refrescar
           </button>
         }
@@ -58,28 +58,28 @@ export default function AdminUnitsPage() {
         <KpiCard label="Total unidades" value={rows.length} />
       </div>
 
-      <form onSubmit={save} className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-3 rounded-xl border bg-white p-4">
-        <input className="border rounded-md px-3 py-2" placeholder="Nombre de la unidad (ej. und, kg, m)" value={nombre} onChange={e=>setNombre(e.target.value)} />
-        <button disabled={saving} className="rounded-md bg-black text-white px-4 py-2">
+      <form onSubmit={save} className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-3 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4">
+        <input className="border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 rounded-md px-3 py-2" placeholder="Nombre de la unidad (ej. und, kg, m)" value={nombre} onChange={e=>setNombre(e.target.value)} />
+        <button disabled={saving} className="rounded-md bg-black dark:bg-white text-white dark:text-black px-4 py-2 hover:bg-neutral-800 dark:hover:bg-neutral-200">
           {saving ? "Guardando…" : "Crear"}
         </button>
       </form>
 
-      <div className="rounded-xl border bg-white overflow-x-auto">
+      <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 overflow-x-auto">
         <table className="w-full text-sm">
-          <thead className="bg-neutral-100">
+          <thead className="bg-neutral-100 dark:bg-neutral-800">
             <tr>
-              <th className="p-2 text-left">ID</th>
-              <th className="p-2 text-left">Nombre</th>
+              <th className="p-2 text-left text-neutral-900 dark:text-neutral-100">ID</th>
+              <th className="p-2 text-left text-neutral-900 dark:text-neutral-100">Nombre</th>
             </tr>
           </thead>
           <tbody>
-            {loading && <tr><td colSpan={2} className="p-4 text-center text-neutral-600">Cargando…</td></tr>}
-            {!loading && rows.length === 0 && <tr><td colSpan={2} className="p-6 text-center text-neutral-600">Aún no hay unidades.</td></tr>}
+            {loading && <tr><td colSpan={2} className="p-4 text-center text-neutral-600 dark:text-neutral-400">Cargando…</td></tr>}
+            {!loading && rows.length === 0 && <tr><td colSpan={2} className="p-6 text-center text-neutral-600 dark:text-neutral-400">Aún no hay unidades.</td></tr>}
             {!loading && rows.map(u=>(
-              <tr key={u.id} className="hover:bg-neutral-50">
-                <td className="p-2 border-t">{u.id}</td>
-                <td className="p-2 border-t">{u.nombre}</td>
+              <tr key={u.id} className="hover:bg-neutral-50 dark:hover:bg-neutral-800">
+                <td className="p-2 border-t border-neutral-200 dark:border-neutral-700 text-neutral-900 dark:text-neutral-100">{u.id}</td>
+                <td className="p-2 border-t border-neutral-200 dark:border-neutral-700 text-neutral-900 dark:text-neutral-100">{u.nombre}</td>
               </tr>
             ))}
           </tbody>
