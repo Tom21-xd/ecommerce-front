@@ -5,6 +5,7 @@ import type { CreateProductDto, ListQuery } from "./dto";
 const PRODUCTS = "/products";
 const PRODUCTS_MATCH = "/products/match";
 const PRODUCTS_MINE = "/products/user";
+const PRODUCTS_OWNER_ALL = "/products/owner/all";
 const PRODUCTS_ADMIN = "/products/admin";
 
 export const ProductsService = {
@@ -49,5 +50,13 @@ export const ProductsService = {
     return data.result;
   },
 
-  
+  async listOwnerAll(params: ListQuery = { limit: 20, offset: 0 }) {
+    const { data } = await http.get<ApiOk<Paginated<Product>>>(PRODUCTS_OWNER_ALL, { params });
+    return data.result;
+  },
+
+  async toggleStatus(id: string | number) {
+    const { data } = await http.patch<ApiOk<Product>>(`${PRODUCTS}/${id}/toggle-status`);
+    return data.result;
+  },
 };

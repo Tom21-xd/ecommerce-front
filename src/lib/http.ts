@@ -17,10 +17,21 @@ http.interceptors.request.use((config) => {
 http.interceptors.response.use(
   (r) => r,
   (err) => {
-    const msg =
-      err?.response?.data?.message ||
-      err?.message ||
-      "Error de red o del servidor";
+    // Detectar errores de autenticación/autorización
+    const status = err?.response?.status;
+
+    let msg;
+    if (status === 401) {
+      msg = "Inicia sesión para poder realizar esta acción";
+    } else if (status === 403) {
+      msg = "No tienes permisos para realizar esta acción";
+    } else {
+      msg =
+        err?.response?.data?.message ||
+        err?.message ||
+        "Error de red o del servidor";
+    }
+
     return Promise.reject(new Error(msg));
   }
 );

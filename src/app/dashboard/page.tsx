@@ -16,7 +16,7 @@ export default function DashboardPage() {
   useEffect(() => {
     (async () => {
       try {
-        const res = await ProductsService.listMine({ limit: 50, offset: 0 });
+        const res = await ProductsService.listOwnerAll({ limit: 50, offset: 0 });
         setItems(res.products ?? []);
       } finally {
         setLoading(false);
@@ -24,9 +24,19 @@ export default function DashboardPage() {
     })();
   }, []);
 
+  const handleStatusChange = (updatedProduct: Product) => {
+    setItems(prevItems =>
+      prevItems.map(item =>
+        item.id === updatedProduct.id ? updatedProduct : item
+      )
+    );
+  };
+
   // KPIs
   const total = items.length;
-  const lowStock = useMemo(() => items.filter(p => p.quantity <= 5).length, [items]);
+  const activeCount = useMemo(() => items.filter(p => p.isActive !== false).length, [items]);
+  const inactiveCount = useMemo(() => items.filter(p => p.isActive === false).length, [items]);
+  const lowStock = useMemo(() => items.filter(p => p.quantity <= 5 && p.isActive !== false).length, [items]);
   const totalStock = useMemo(() => items.reduce((acc, p) => acc + (typeof p.quantity === 'number' ? p.quantity : 0), 0), [items]);
 
   return (
@@ -53,15 +63,18 @@ export default function DashboardPage() {
         </div>
 
         {/* KPIs modernos */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          <KpiCard label="Total productos" value={total} hint="Activos en tu catálogo">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <KpiCard label="Total productos" value={total} hint="En tu catálogo">
             <Package className="text-primary-600 dark:text-primary-400" size={28} />
+          </KpiCard>
+          <KpiCard label="Productos activos" value={activeCount} hint="Visibles para usuarios">
+            <Package className="text-emerald-600 dark:text-emerald-400" size={28} />
+          </KpiCard>
+          <KpiCard label="Productos inactivos" value={inactiveCount} hint="Ocultos de la vista">
+            <Package className="text-red-600 dark:text-red-400" size={28} />
           </KpiCard>
           <KpiCard label="Stock bajo" value={lowStock} hint="≤ 5 unidades">
             <AlertTriangle className="text-yellow-500" size={28} />
-          </KpiCard>
-          <KpiCard label="Stock total" value={totalStock} hint="Unidades disponibles">
-            <Layers className="text-emerald-600 dark:text-emerald-400" size={28} />
           </KpiCard>
         </div>
 
@@ -78,7 +91,7 @@ export default function DashboardPage() {
             <EmptyState text="No tienes productos registrados. ¡Agrega tu primer producto!" />
           ) : (
             <div className="rounded-xl bg-white dark:bg-neutral-900 p-6 shadow-sm border border-neutral-200 dark:border-neutral-800">
-              <ProductGrid items={items} hideAddToCart />
+              <ProductGrid items={items} hideAddToCart onStatusChange={handleStatusChange} />
             </div>
           )}
         </div>
