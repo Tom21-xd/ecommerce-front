@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { OrdersService, type Order } from '@/service/orders/orders.service';
+import { ShipmentsService } from '@/service/shipments/shipments.service';
 import { Package, Clock, CheckCircle, MapPin, User, Phone, Mail, DollarSign, Truck } from 'lucide-react';
 
 export default function SellerOrdersPage() {
@@ -23,6 +24,18 @@ export default function SellerOrdersPage() {
       toast.error(msg);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const markAsDelivered = async (shipmentId: number) => {
+    try {
+      await ShipmentsService.updateStatus(shipmentId, 'DELIVERED');
+      toast.success('Pedido marcado como entregado');
+      await loadOrders(); // Recargar la lista
+    } catch (error: unknown) {
+      console.error('Error al actualizar estado:', error);
+      const msg = error instanceof Error ? error.message : 'Error al actualizar el estado del envío';
+      toast.error(msg);
     }
   };
 
@@ -170,30 +183,41 @@ export default function SellerOrdersPage() {
                     </div>
 
                     {/* Dirección de entrega */}
-                    {order.pedido_address && (
-                      <div className="mt-4 p-4 bg-green-50 dark:bg-green-900/10 rounded-lg border border-green-200 dark:border-green-800">
-                        <h5 className="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2 mb-2">
-                          <MapPin size={18} className="text-green-600" />
-                          Dirección de Entrega
-                        </h5>
+                    <div className="mt-4 p-4 bg-green-50 dark:bg-green-900/10 rounded-lg border border-green-200 dark:border-green-800">
+                      <h5 className="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2 mb-2">
+                        <MapPin size={18} className="text-green-600" />
+                        Dirección de Entrega
+                      </h5>
+                      {order.pedido_address ? (
                         <div className="text-sm space-y-1">
-                          <p className="font-medium text-gray-900 dark:text-gray-100">
-                            {order.pedido_address.street}
+                          <p className="font-bold text-gray-900 dark:text-gray-100">
+                            {order.pedido_address.fullName || 'Sin nombre'}
                           </p>
                           <p className="text-gray-600 dark:text-gray-400">
-                            {order.pedido_address.city}, {order.pedido_address.state}
+                            <Phone size={14} className="inline mr-1" />
+                            {order.pedido_address.phone || 'Sin teléfono'}
                           </p>
-                          <p className="text-gray-600 dark:text-gray-400">
-                            {order.pedido_address.country} - {order.pedido_address.postalCode}
+                          <p className="font-medium text-gray-900 dark:text-gray-100 mt-2">
+                            {order.pedido_address.line1 || 'Sin dirección'}
                           </p>
-                          {order.pedido_address.additionalInfo && (
-                            <p className="text-gray-500 dark:text-gray-500 italic text-xs mt-2">
-                              {order.pedido_address.additionalInfo}
+                          {order.pedido_address.line2 && (
+                            <p className="text-gray-600 dark:text-gray-400">
+                              {order.pedido_address.line2}
                             </p>
                           )}
+                          <p className="text-gray-600 dark:text-gray-400">
+                            {order.pedido_address.city || 'Sin ciudad'}{order.pedido_address.state ? `, ${order.pedido_address.state}` : ''}
+                          </p>
+                          <p className="text-gray-600 dark:text-gray-400">
+                            {order.pedido_address.country || 'Sin país'}{order.pedido_address.zip ? ` - ${order.pedido_address.zip}` : ''}
+                          </p>
                         </div>
-                      </div>
-                    )}
+                      ) : (
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          No se ha registrado una dirección de entrega para este pedido.
+                        </p>
+                      )}
+                    </div>
                   </div>
 
                   {/* Productos y estado de envío */}
@@ -223,10 +247,10 @@ export default function SellerOrdersPage() {
                           </div>
                           <div className="text-right">
                             <p className="text-sm text-gray-600 dark:text-gray-400">
-                              ${item.precio_unitario.toLocaleString('es-CO')} c/u
+                              ${((item as any).precio_unitario || (item as any).priceUnit || 0).toLocaleString('es-CO')} c/u
                             </p>
                             <p className="font-bold text-gray-900 dark:text-gray-100">
-                              ${item.subtotal.toLocaleString('es-CO')}
+                              ${(item.subtotal || 0).toLocaleString('es-CO')}
                             </p>
                           </div>
                         </div>
@@ -240,10 +264,20 @@ export default function SellerOrdersPage() {
                           <Truck size={18} className="text-blue-600" />
                           Estado de Envío
                         </h5>
-                        <div className="space-y-2">
+                        <div className="space-y-3">
                           {order.shipment.map((shipment, idx) => (
                             <div key={idx} className="text-sm">
-                              {getShipmentStatusBadge(shipment.status)}
+                              <div className="flex items-center justify-between mb-2">
+                                {getShipmentStatusBadge(shipment.status)}
+                                {shipment.status !== 'DELIVERED' && (
+                                  <button
+                                    onClick={() => markAsDelivered(shipment.id)}
+                                    className="px-3 py-1 text-xs font-semibold text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors"
+                                  >
+                                    Marcar como Entregado
+                                  </button>
+                                )}
+                              </div>
                               {shipment.carrier && (
                                 <p className="text-gray-600 dark:text-gray-400 mt-1">
                                   Transportadora: {shipment.carrier}

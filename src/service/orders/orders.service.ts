@@ -7,12 +7,14 @@ const ORDERS_SELLER_PENDING = "/orders/seller/pending";
 
 export interface OrderAddress {
   id: number;
-  street: string;
+  fullName: string;
+  phone: string;
+  line1: string;
+  line2?: string;
   city: string;
-  state: string;
-  postalCode: string;
+  state?: string;
   country: string;
-  additionalInfo?: string;
+  zip?: string;
 }
 
 export interface OrderUser {

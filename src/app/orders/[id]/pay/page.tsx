@@ -101,6 +101,11 @@ export default function PayOrderPage() {
   const generatePaymentButton = useCallback(async (orderData: Order) => {
     setGeneratingButton(true);
     try {
+      // Validar monto mínimo
+      if (orderData.precio_total < 5000) {
+        throw new Error('El monto mínimo para realizar un pago es de $5,000 COP');
+      }
+
       const sellerId = resolveSellerId(orderData);
 
       const subtotal = orderData.precio_total / 1.19;
@@ -184,15 +189,30 @@ export default function PayOrderPage() {
     fetchOrder();
   }, [orderId, generatePaymentButton]);
 
-  const handlePaymentResponse = (response: EpaycoCheckoutResponse) => {
+  const handlePaymentResponse = async (response: EpaycoCheckoutResponse) => {
     console.log('Respuesta de ePayco:', response);
 
     if (response.x_cod_response === '1') {
       toast.success('Pago procesado exitosamente');
-      router.push('/orders');
+      // Recargar la orden para mostrar el estado actualizado
+      try {
+        const orderResponse = await http.get(`/orders/${orderId}`);
+        const orderData: Order = orderResponse.data.result;
+        setOrder(orderData);
+        setButtonData(null); // Ocultar el botón de pago
+      } catch (err) {
+        console.error('Error al recargar orden:', err);
+      }
     } else if (response.x_cod_response === '3') {
       toast.info('Pago pendiente de confirmación');
-      router.push('/orders');
+      // Recargar la orden
+      try {
+        const orderResponse = await http.get(`/orders/${orderId}`);
+        const orderData: Order = orderResponse.data.result;
+        setOrder(orderData);
+      } catch (err) {
+        console.error('Error al recargar orden:', err);
+      }
     } else {
       toast.error('El pago no pudo ser procesado');
     }
