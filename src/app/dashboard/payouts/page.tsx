@@ -13,7 +13,13 @@ interface VendorBalance {
   adminCommission: number;
   availableBalance: number;
   totalDispersed: number;
-  activeBankAccount: any | null;
+  activeBankAccount: {
+    id: number;
+    bankName: string;
+    accountType: string;
+    accountNumber: string;
+    holderName: string;
+  } | null;
   hasBankAccountVerified: boolean;
 }
 

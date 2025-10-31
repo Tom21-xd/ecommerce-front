@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { http } from '@/lib/http';
 import EpaycoButton from '@/components/payment/EpaycoButton';
@@ -88,7 +88,6 @@ function resolveSellerId(orderData: Order): number | null {
 
 export default function PayOrderPage() {
   const params = useParams();
-  const router = useRouter();
   const orderId = parseInt(params.id as string, 10);
 
   const [order, setOrder] = useState<Order | null>(null);
@@ -189,10 +188,11 @@ export default function PayOrderPage() {
     fetchOrder();
   }, [orderId, generatePaymentButton]);
 
-  const handlePaymentResponse = async (response: EpaycoCheckoutResponse) => {
-    console.log('Respuesta de ePayco:', response);
+  const handlePaymentResponse = async (response: unknown) => {
+    const res = response as EpaycoCheckoutResponse;
+    console.log('Respuesta de ePayco:', res);
 
-    if (response.x_cod_response === '1') {
+    if (res.x_cod_response === '1') {
       toast.success('Pago procesado exitosamente');
       // Recargar la orden para mostrar el estado actualizado
       try {
@@ -203,7 +203,7 @@ export default function PayOrderPage() {
       } catch (err) {
         console.error('Error al recargar orden:', err);
       }
-    } else if (response.x_cod_response === '3') {
+    } else if (res.x_cod_response === '3') {
       toast.info('Pago pendiente de confirmación');
       // Recargar la orden
       try {

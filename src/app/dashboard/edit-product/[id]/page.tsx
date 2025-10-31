@@ -4,8 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { toast } from "sonner";
 import { CatalogService } from "@/service/catalog/catalog.service";
-import { ProductContainerService } from "@/service/product-container/product-container.service";
-import type { Category, Marca, Product, Unidad } from "@/lib/types";
+import type { Category, Marca, Unidad } from "@/lib/types";
 import type { CreateProductDto } from "@/service/products/dto";
 import { ArrowDown, ArrowUp, ImagePlus, Trash2 } from "lucide-react";
 import { ProductsService } from "@/service/products/product.service";
@@ -47,7 +46,7 @@ export default function EditProductPage() {
   const [description, setDescription] = useState("");
   const [unidadId, setUnidadId] = useState<number | null>(null);
   const [marcaId, setMarcaId] = useState<number | null>(null);
-  const [containerId, setContainerId] = useState<number | null>(null);
+  const [_containerId, setContainerId] = useState<number | null>(null);
   const [categoryIds, setCategoryIds] = useState<number[]>([]);
   const [images, setImages] = useState<ImgItem[]>([]);
   const [minStock, setMinStock] = useState<number>(0);
@@ -195,6 +194,7 @@ export default function EditProductPage() {
         quantity: Number(quantity),
         price: Number(price),
         description: description.trim() || undefined,
+        containerId: _containerId || undefined,
         unidadId: unidadId || undefined,
         marcaId: marcaId || undefined,
         categoryIds,

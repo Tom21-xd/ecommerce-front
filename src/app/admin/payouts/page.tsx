@@ -12,9 +12,7 @@ import {
   CheckCircle,
   XCircle,
   Clock,
-  AlertTriangle,
   Send,
-  Eye,
 } from 'lucide-react';
 
 interface VendorBalance {
@@ -25,7 +23,13 @@ interface VendorBalance {
   adminCommission: number;
   availableBalance: number;
   totalDispersed: number;
-  activeBankAccount: any | null;
+  activeBankAccount: {
+    id: number;
+    bankName: string;
+    accountType: string;
+    accountNumber: string;
+    holderName: string;
+  } | null;
   hasBankAccountVerified: boolean;
 }
 
@@ -134,9 +138,10 @@ export default function AdminPayoutsPage() {
           await http.post('/vendor-payouts/create', { vendorId });
           toast.success('Dispersión creada exitosamente');
           fetchData();
-        } catch (error: any) {
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : 'Error al crear dispersión';
           console.error('Error creating payout:', error);
-          toast.error(error.response?.data?.message || 'Error al crear dispersión');
+          toast.error(errorMessage);
         }
       },
     });
@@ -154,9 +159,10 @@ export default function AdminPayoutsPage() {
           const result = response.data.result;
           toast.success(`Dispersiones creadas: ${result.successful} exitosas, ${result.failed} fallidas`);
           fetchData();
-        } catch (error: any) {
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : 'Error al crear dispersiones';
           console.error('Error creating payouts:', error);
-          toast.error(error.response?.data?.message || 'Error al crear dispersiones');
+          toast.error(errorMessage);
         }
       },
     });
@@ -173,9 +179,10 @@ export default function AdminPayoutsPage() {
           await http.post(`/vendor-payouts/execute/${payoutId}`);
           toast.success('Dispersión ejecutada exitosamente');
           fetchData();
-        } catch (error: any) {
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : 'Error al ejecutar dispersión';
           console.error('Error executing payout:', error);
-          toast.error(error.response?.data?.message || 'Error al ejecutar dispersión');
+          toast.error(errorMessage);
         }
       },
     });
@@ -192,9 +199,10 @@ export default function AdminPayoutsPage() {
           await http.delete(`/vendor-payouts/${payoutId}`);
           toast.success('Dispersión cancelada');
           fetchData();
-        } catch (error: any) {
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : 'Error al cancelar dispersión';
           console.error('Error cancelling payout:', error);
-          toast.error(error.response?.data?.message || 'Error al cancelar dispersión');
+          toast.error(errorMessage);
         }
       },
     });

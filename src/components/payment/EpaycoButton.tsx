@@ -20,14 +20,14 @@ interface EpaycoButtonData {
 
 interface EpaycoButtonProps {
   buttonData: EpaycoButtonData;
-  onResponse?: (response: any) => void;
-  onError?: (error: any) => void;
+  onResponse?: (response: unknown) => void;
+  onError?: (error: unknown) => void;
   buttonImageUrl?: string;
 }
 
 declare global {
   interface Window {
-    ePayco: any;
+    ePayco?: unknown;
   }
 }
 
@@ -42,7 +42,8 @@ export default function EpaycoButton({
 
   useEffect(() => {
     if (scriptLoaded.current) return;
-
+    
+  const currentForm = formRef.current;
     const script = document.createElement('script');
     script.src = 'https://checkout.epayco.co/checkout.js';
     script.className = 'epayco-button';
@@ -87,13 +88,13 @@ export default function EpaycoButton({
       }
     };
 
-    if (formRef.current) {
-      formRef.current.appendChild(script);
+    if (currentForm) {
+      currentForm.appendChild(script);
     }
 
     return () => {
-      if (formRef.current && script.parentNode) {
-        formRef.current.removeChild(script);
+      if (currentForm && script.parentNode) {
+        currentForm.removeChild(script);
       }
     };
   }, [buttonData, buttonImageUrl, onError]);

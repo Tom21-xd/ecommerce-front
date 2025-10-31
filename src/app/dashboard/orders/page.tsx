@@ -227,34 +227,39 @@ export default function SellerOrdersPage() {
                       Productos a Entregar ({order.pedido_producto.length})
                     </h4>
                     <div className="space-y-2 max-h-64 overflow-y-auto">
-                      {order.pedido_producto.map((item, idx) => (
-                        <div
-                          key={idx}
-                          className="flex justify-between items-start p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg"
-                        >
-                          <div className="flex-1">
-                            <p className="font-medium text-gray-900 dark:text-gray-100">
-                              {item.nameAtPurchase}
-                            </p>
-                            {item.skuAtPurchase && (
-                              <p className="text-xs text-gray-500 dark:text-gray-400">
-                                SKU: {item.skuAtPurchase}
+                      {order.pedido_producto.map((item, idx) => {
+                        const maybePrice = (item as unknown as Record<string, unknown>)['priceUnit'];
+                        const unitPrice = typeof maybePrice === 'number' ? maybePrice : (item.precio_unitario ?? 0);
+
+                        return (
+                          <div
+                            key={idx}
+                            className="flex justify-between items-start p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg"
+                          >
+                            <div className="flex-1">
+                              <p className="font-medium text-gray-900 dark:text-gray-100">
+                                {item.nameAtPurchase}
                               </p>
-                            )}
-                            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                              Cantidad: <span className="font-semibold">{item.cantidad}</span>
-                            </p>
+                              {item.skuAtPurchase && (
+                                <p className="text-xs text-gray-500 dark:text-gray-400">
+                                  SKU: {item.skuAtPurchase}
+                                </p>
+                              )}
+                              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                Cantidad: <span className="font-semibold">{item.cantidad}</span>
+                              </p>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-sm text-gray-600 dark:text-gray-400">
+                                ${unitPrice.toLocaleString('es-CO')} c/u
+                              </p>
+                              <p className="font-bold text-gray-900 dark:text-gray-100">
+                                ${(item.subtotal || 0).toLocaleString('es-CO')}
+                              </p>
+                            </div>
                           </div>
-                          <div className="text-right">
-                            <p className="text-sm text-gray-600 dark:text-gray-400">
-                              ${((item as any).precio_unitario || (item as any).priceUnit || 0).toLocaleString('es-CO')} c/u
-                            </p>
-                            <p className="font-bold text-gray-900 dark:text-gray-100">
-                              ${(item.subtotal || 0).toLocaleString('es-CO')}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
 
                     {/* Estado de envío */}

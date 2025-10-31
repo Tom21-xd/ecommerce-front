@@ -4,6 +4,7 @@ export type CreateProductDto = {
   sku: string;
   quantity: number;
   price: number;
+  description?: string;
   containerId?: number | null;
   unidadId?: number | null;
   marcaId?: number | null;

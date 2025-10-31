@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { http } from '@/lib/http';
@@ -27,11 +27,7 @@ export default function EpaycoConfigPage() {
     isActive: false,
   });
 
-  useEffect(() => {
-    loadConfig();
-  }, []);
-
-  const loadConfig = async () => {
+  const loadConfig = useCallback(async () => {
     try {
       const response = await http.get('/epayco-config');
       if (response.data.result) {
@@ -43,9 +39,19 @@ export default function EpaycoConfigPage() {
           isActive: response.data.result.isActive,
         });
       }
-    } catch (error: any) {
-      const status = error.response?.status;
-      const message = error.response?.data?.message || error.message;
+    } catch (error) {
+      let status: number | undefined;
+      let message: string;
+      
+      if (error instanceof Error) {
+        message = error.message;
+        if ('response' in error) {
+          const axiosError = error as { response?: { status?: number } };
+          status = axiosError.response?.status;
+        }
+      } else {
+        message = 'Error desconocido';
+      }
 
       // Si no existe configuración (404), no mostrar error
       if (status === 404) {
@@ -68,7 +74,11 @@ export default function EpaycoConfigPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [router]);
+
+  useEffect(() => {
+    loadConfig();
+  }, [loadConfig]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,12 +95,10 @@ export default function EpaycoConfigPage() {
         toast.success('Configuración creada correctamente');
       }
       await loadConfig();
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error al guardar configuración:', error);
-      toast.error(
-        error.response?.data?.message ||
-          'Error al guardar la configuración de ePayco'
-      );
+      const errorMessage = error instanceof Error ? error.message : 'Error al guardar la configuración de ePayco';
+      toast.error(errorMessage);
     } finally {
       setSaving(false);
     }
@@ -108,7 +116,7 @@ export default function EpaycoConfigPage() {
           : 'Configuración activada'
       );
       await loadConfig();
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error al cambiar estado:', error);
       toast.error('Error al cambiar el estado de la configuración');
     }

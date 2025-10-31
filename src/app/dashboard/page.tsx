@@ -5,7 +5,7 @@ import type { Product } from "@/lib/types";
 import Link from "next/link";
 import { ProductsService } from "@/service/products/product.service";
 import KpiCard from "@/components/admin/kpiCard";
-import { Package, AlertTriangle, Layers, DollarSign, Building2, ShoppingBag } from "lucide-react";
+import { Package, AlertTriangle, DollarSign, Building2, ShoppingBag } from "lucide-react";
 import ProductGrid from "@/components/product/productGrid";
 import EmptyState from "@/components/common/emptyState";
 
@@ -37,7 +37,7 @@ export default function DashboardPage() {
   const activeCount = useMemo(() => items.filter(p => p.isActive !== false).length, [items]);
   const inactiveCount = useMemo(() => items.filter(p => p.isActive === false).length, [items]);
   const lowStock = useMemo(() => items.filter(p => p.quantity <= 5 && p.isActive !== false).length, [items]);
-  const totalStock = useMemo(() => items.reduce((acc, p) => acc + (typeof p.quantity === 'number' ? p.quantity : 0), 0), [items]);
+  // totalStock removed (unused)
 
   return (
     <section className="min-h-screen px-4 py-6">

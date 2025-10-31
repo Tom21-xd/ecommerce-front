@@ -56,7 +56,8 @@ export default function CheckoutPage() {
       const response = await CartService.checkout({ addressId: selected });
       toast.success("Pedido creado exitosamente");
 
-      const orderId = response?.id || response?.result?.id;
+      const res = response as { id?: number; result?: { id?: number } } | undefined;
+      const orderId = res?.id ?? res?.result?.id;
 
       if (orderId) {
         router.push(`/orders/${orderId}/pay`);

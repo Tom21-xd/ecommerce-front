@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
 import { http } from '@/lib/http';
 import ConfirmDialog from '@/components/common/ConfirmDialog';
-import { Building2, CheckCircle, X, Eye, Shield } from 'lucide-react';
+import { Building2, CheckCircle, X, Shield } from 'lucide-react';
 
 interface BankAccount {
   id: number;
@@ -43,13 +43,9 @@ export default function AdminBankAccountsPage() {
     onConfirm: () => {},
   });
 
-  useEffect(() => {
-    fetchAccounts();
-  }, [filter]);
-
-  const fetchAccounts = async () => {
+  const fetchAccounts = useCallback(async () => {
     try {
-      const params: any = {};
+      const params: Record<string, string> = {};
       if (filter === 'verified') params.isVerified = 'true';
       if (filter === 'pending') params.isVerified = 'false';
 
@@ -62,7 +58,11 @@ export default function AdminBankAccountsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filter]);
+
+  useEffect(() => {
+    fetchAccounts();
+  }, [fetchAccounts]);
 
   const handleVerify = (id: number, accountInfo: string) => {
     setConfirmDialog({

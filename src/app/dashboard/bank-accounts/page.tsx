@@ -3,9 +3,9 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { http } from '@/lib/http';
-import { useCurrentUser } from '@/hooks/useCurrentUser';
+// removed unused import
 import ConfirmDialog from '@/components/common/ConfirmDialog';
-import { Building2, Plus, Trash2, Check, X, Store, ArrowRight } from 'lucide-react';
+import { Building2, Plus, Trash2, Check, X } from 'lucide-react';
 
 interface BankAccount {
   id: number;
@@ -21,11 +21,9 @@ interface BankAccount {
 }
 
 export default function BankAccountsPage() {
-  const user = useCurrentUser();
   const [accounts, setAccounts] = useState<BankAccount[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
-  const [upgradingToSeller, setUpgradingToSeller] = useState(false);
   const [formData, setFormData] = useState({
     bankName: '',
     accountType: 'AHORROS' as 'AHORROS' | 'CORRIENTE',
@@ -80,9 +78,10 @@ export default function BankAccountsPage() {
         isActive: true,
       });
       fetchAccounts();
-    } catch (error: any) {
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Error al registrar la cuenta';
       console.error('Error creating bank account:', error);
-      toast.error(error.response?.data?.message || 'Error al registrar la cuenta');
+      toast.error(errorMessage);
     }
   };
 
@@ -115,21 +114,7 @@ export default function BankAccountsPage() {
     }
   };
 
-  const handleUpgradeToSeller = async () => {
-    setUpgradingToSeller(true);
-    try {
-      await http.patch('/users/upgrade-to-seller');
-      toast.success('¡Felicidades! Ahora eres vendedor. Recarga la página para ver los cambios.');
-      setTimeout(() => {
-        window.location.reload();
-      }, 2000);
-    } catch (error: any) {
-      console.error('Error upgrading to seller:', error);
-      toast.error(error.response?.data?.message || 'Error al actualizar tu rol');
-    } finally {
-      setUpgradingToSeller(false);
-    }
-  };
+  // handleUpgradeToSeller removed because it was unused; keep implementation in git history if needed
 
   if (loading) {
     return (
